@@ -19,9 +19,9 @@ var GraphManager = function () {
 	this.edgeCounter = 0;
 };
 
-GraphManager.prototype.createEmptyGraph = function () {
+GraphManager.prototype.createEmptyGraph = function (directed) {
 	return {
-		directed: false,
+		directed: directed,
 		nodes: {},
 		edges: {}
 	};
@@ -40,6 +40,20 @@ GraphManager.prototype.addNode = function (graph) {
 
 
 GraphManager.prototype.addEdge = function (graph, firstId, secondId, weight) {
+	if (firstId == secondId) {
+		return;
+	}
+	if (!GraphUtil.isDirected(graph)) {
+		if (this.areConnected(graph, firstId, secondId) ||
+			this.areConnected(graph, secondId, firstId)) {
+			return;
+		}
+	} else {
+		if (this.areConnected(graph, firstId, secondId)) {
+			return;
+		}
+	}
+
 	var edge = this.createEdge(firstId, secondId, weight);
 	graph.edges[edge.id] = edge;
 
@@ -52,6 +66,19 @@ GraphManager.prototype.addEdge = function (graph, firstId, secondId, weight) {
 		graph.nodes[firstId].edges.push(edge.id);
 		graph.nodes[secondId].edges.push(reverseEdge.id);
 	}
+};
+
+GraphManager.prototype.areConnected = function (graph, firstId, secondId) {
+	var firstEdges = graph.nodes[firstId].edges;
+
+	for (var i = 0; i < firstEdges.length; i++) {
+		var edge = graph.edges[firstEdges[i]];
+		if (edge.from == firstId && edge.to == secondId) {
+			return true;
+		}
+	}
+
+	return false;
 };
 
 /*

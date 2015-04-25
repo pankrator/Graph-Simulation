@@ -4,6 +4,8 @@ var NORMAL_FILL_STYLE = "blue";
 var EDGE_STROKE_STYLE = "red";
 var EDGE_WEIGHT_FILL_STYLE = "blue";
 
+var ARROW_LENGTH = 20;
+
 var Renderer = function (context, graph) {
 	this.graph = graph;
 	this.graph.animationStates = {};
@@ -47,37 +49,57 @@ Renderer.prototype.renderEdges = function(edges) {
 		var node1 = this.graph.transformations[edge.from];
 		var node2 = this.graph.transformations[edge.to];
 
-		if (!this.graph.directed) {
-			context.beginPath();
-			var dir = {
-				x: node1.x - node2.x,
-				y: node1.y - node2.y
+		context.beginPath();
+		var dir = {
+			x: node1.x - node2.x,
+			y: node1.y - node2.y
+		};
+		var len = Math.sqrt(dir.x * dir.x + dir.y * dir.y);
+		if (len != 0) {
+			dir.x /= len;
+			dir.y /= len;
+		}
+
+		this.renderLine({
+			x: node1.x + (-1) * dir.x * node1.radius,
+			y: node1.y + (-1) * dir.y * node1.radius
+		}, {
+			x: node2.x + dir.x * node2.radius,
+			y: node2.y + dir.y * node2.radius
+		}, EDGE_STROKE_STYLE);
+
+		if (edge.weight !== 0) {
+			context.fillStyle = EDGE_WEIGHT_FILL_STYLE;
+			context.fillText(edge.weight, 
+							 (node1.x + node2.x) / 2,
+							 (node1.y + node2.y) / 2 - 20); // Magic
+		}
+
+		// if (list[i].level) {
+		// 	context.fillStyle = "blue";
+		// 	context.fillText((list[i].level - 1) + " steps", list[i].x - 10, list[i].y - list[i].radius - 10);
+		// }
+
+		if (this.graph.directed) {
+			var point1 = {
+				x: ((node2.x + dir.x * node2.radius) + (dir.x) * ARROW_LENGTH) + (-dir.y * ARROW_LENGTH),
+				y: ((node2.y + dir.y * node2.radius) + (dir.y) * ARROW_LENGTH) + (dir.x * ARROW_LENGTH)
 			};
-			var len = Math.sqrt(dir.x * dir.x + dir.y * dir.y);
-			if (len != 0) {
-				dir.x /= len;
-				dir.y /= len;
-			}
+
+			var point2 = {
+				x: ((node2.x + dir.x * node2.radius) + (dir.x) * ARROW_LENGTH) + (dir.y * ARROW_LENGTH),
+				y: ((node2.y + dir.y * node2.radius) + (dir.y) * ARROW_LENGTH) + (-dir.x * ARROW_LENGTH)
+			};
 
 			this.renderLine({
-				x: node1.x + (-1) * dir.x * node1.radius,
-				y: node1.y + (-1) * dir.y * node1.radius
-			}, {
 				x: node2.x + dir.x * node2.radius,
 				y: node2.y + dir.y * node2.radius
-			}, EDGE_STROKE_STYLE);
+			}, point1, EDGE_STROKE_STYLE);
 
-			if (edge.weight !== 0) {
-				context.fillStyle = EDGE_WEIGHT_FILL_STYLE;
-				context.fillText(edge.weight, 
-								 (node1.x + node2.x) / 2,
-								 (node1.y + node2.y) / 2 - 20); // Magic
-			}
-
-			// if (list[i].level) {
-			// 	context.fillStyle = "blue";
-			// 	context.fillText((list[i].level - 1) + " steps", list[i].x - 10, list[i].y - list[i].radius - 10);
-			// }
+			this.renderLine({
+				x: node2.x + dir.x * node2.radius,
+				y: node2.y + dir.y * node2.radius
+			}, point2, EDGE_STROKE_STYLE);
 		}
 	}
 };

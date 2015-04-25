@@ -58,7 +58,7 @@ window.onload = function () {
 	context = canvas.getContext("2d");
 
 	manager = new GraphManager();
-	graph = manager.createEmptyGraph();
+	graph = manager.createEmptyGraph(true);
 	forceController = new ForceBasedController(graph);
 	renderer = new Renderer(context, graph);
 	stateManager = new StateManager(graph);
