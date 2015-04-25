@@ -36,8 +36,15 @@ var addEdge = function () {
 		var secondNode = forceController.getNodeIdByCoordinates(input.mouse.x,
 																input.mouse.y);
 		if (secondNode != null) {
-			manager.addEdge(graph, firstNode, secondNode);
-			EventBus.publish("add-edge");
+			renderer.lerpLine(graph.transformations[firstNode].x,
+										  graph.transformations[firstNode].y,
+										  graph.transformations[secondNode].x,
+										  graph.transformations[secondNode].y,
+										  "blue",
+			function (manager, graph, firstNode, secondNode) {
+				manager.addEdge(graph, firstNode, secondNode);
+				EventBus.publish("add-edge");				
+			}.bind(this, manager, graph, firstNode, secondNode));
 		}
 		renderer.stopPulseAnimation(firstNode);
 		firstNode = null;

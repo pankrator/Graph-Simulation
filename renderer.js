@@ -4,6 +4,7 @@ var NORMAL_FILL_STYLE = "blue";
 var EDGE_STROKE_STYLE = "red";
 var EDGE_WEIGHT_FILL_STYLE = "blue";
 
+var LINE_WIDTH = 5;
 var ARROW_LENGTH = 20;
 
 var Renderer = function (context, graph) {
@@ -66,7 +67,7 @@ Renderer.prototype.renderEdges = function(edges) {
 		}, {
 			x: node2.x + dir.x * node2.radius,
 			y: node2.y + dir.y * node2.radius
-		}, EDGE_STROKE_STYLE);
+		}, EDGE_STROKE_STYLE, LINE_WIDTH);
 
 		if (edge.weight !== 0) {
 			context.fillStyle = EDGE_WEIGHT_FILL_STYLE;
@@ -94,12 +95,12 @@ Renderer.prototype.renderEdges = function(edges) {
 			this.renderLine({
 				x: node2.x + dir.x * node2.radius,
 				y: node2.y + dir.y * node2.radius
-			}, point1, EDGE_STROKE_STYLE);
+			}, point1, EDGE_STROKE_STYLE, LINE_WIDTH);
 
 			this.renderLine({
 				x: node2.x + dir.x * node2.radius,
 				y: node2.y + dir.y * node2.radius
-			}, point2, EDGE_STROKE_STYLE);
+			}, point2, EDGE_STROKE_STYLE, LINE_WIDTH);
 		}
 	}
 };
@@ -107,21 +108,23 @@ Renderer.prototype.renderEdges = function(edges) {
 Renderer.prototype.renderCircle = function (x, y, radius,
 											outlineColor,
 											isFilled,
-											fillColor) {
+											fillColor,
+											lineWidth) {
 	this.context.beginPath();
+	this.context.lineWidth = lineWidth ? lineWidth : LINE_WIDTH;
+	context.fillStyle = fillColor;
+	context.strokeStyle = outlineColor;
+
+	context.arc(x, y, radius, 0, Math.PI * 2);
 	if (isFilled) {
-		context.fillStyle = fillColor;
-		context.arc(x, y, radius, 0, Math.PI * 2);
 		context.fill();
-	} else {
-		context.strokeStyle = outlineColor;
-		context.arc(x, y, radius, 0, Math.PI * 2);
-		context.stroke();
 	}
+	context.stroke();
 }
 
-Renderer.prototype.renderLine = function (from, to, color) {
+Renderer.prototype.renderLine = function (from, to, color, lineWidth) {
 	this.context.beginPath();
+	this.context.lineWidth = lineWidth ? lineWidth : LINE_WIDTH;
 	this.context.strokeStyle = color;
 
 	this.context.moveTo(from.x, from.y);
@@ -176,6 +179,53 @@ Renderer.prototype.playPulseAnimation = function (nodeId) {
 		return animationState.pulsePlaying;
 	}.bind(this, transform, animationState, prevAnimationState));
 };
+
+Renderer.prototype.lerpLine = function (fromX, fromY, toX, toY, color, callback) {
+	var state = {
+		from: {
+			x: fromX,
+			y: fromY
+		},
+		to : {
+			x: toX,
+			y: toY
+		},
+		dir: {
+			x: toX - fromX,
+			y: toY - fromY
+		},
+		currentPos: {
+			x: fromX,
+			y: fromY
+		},
+		movePerStep: 30
+	};
+	var len = Math.sqrt(state.dir.x * state.dir.x + state.dir.y * state.dir.y);
+	state.dir.x /= len;
+	state.dir.y /= len;
+	state.len = len;
+
+	this.animations.push(function (state, callback) {
+		state.currentPos.x += state.dir.x * state.movePerStep;
+		state.currentPos.y += state.dir.y * state.movePerStep;
+
+		var currentLength = Math.sqrt((state.currentPos.x - state.from.x) *
+									  (state.currentPos.x - state.from.x) +
+									  (state.currentPos.y - state.from.y) *
+									  (state.currentPos.y - state.from.y));
+
+		this.renderLine(state.from, state.currentPos, color, LINE_WIDTH);
+
+		if (currentLength - state.len > 0) {
+			if (typeof callback == "function") {
+				callback();
+			}
+			return false;
+		}
+
+		return true;
+	}.bind(this, state, callback));
+}
 
 Renderer.prototype.render = function () {
 	this.renderNodes();
