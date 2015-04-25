@@ -12,9 +12,12 @@ var forceController;
 var renderer;
 var stateManager;
 
-var test = function () {
-	manager.createEmptyGraph(graph, false);
-	graph.test = 1000;
+var createNode = function () {
+	var nodeIndex = manager.addNode(graph);
+	EventBus.publish("add-node", nodeIndex, 
+							 	 input.mouse.x,
+							 	 input.mouse.y,
+							 	 30);
 }
 
 var createNotDirectedGraph = function() {
@@ -30,9 +33,8 @@ document.getElementById("not_directed_graph").addEventListener("click", createNo
 document.getElementById("directed_graph").addEventListener("click", createDirectedGraph);
 // document.getElementById("save").addEventListener("click", func);
 
-
-var createNode = function (button) {
-	if (firstNode == null && button == 0) {
+var createNode = function () {
+	if (firstNode == null) {
 		var nodeIndex = manager.addNode(graph);
 		EventBus.publish("add-node", nodeIndex, 
 								 	 input.mouse.x,
@@ -41,52 +43,78 @@ var createNode = function (button) {
 	}
 };
 
-var removeNode = function (button) {
-	if(button == 2) {
-		var nodeToRemove = forceController.getNodeIdByCoordinates(input.mouse.x,
-																  input.mouse.y);
-		
-		if(nodeToRemove != null) {
-			manager.removeNode(graph, nodeToRemove);
-			EventBus.publish("remove-node", nodeToRemove);
-		}
+var removeNode = function () {
+	var nodeToRemove = forceController.getNodeIdByCoordinates(input.mouse.x,
+															  input.mouse.y);
+	
+	if(nodeToRemove != null) {
+		manager.removeNode(graph, nodeToRemove);
+		EventBus.publish("remove-node", nodeToRemove);
 	}
 }
 
-var addEdge = function (button) {
-	if (firstNode != null && button == 0) {
-		var secondNode = forceController.getNodeIdByCoordinates(input.mouse.x,
+var addEdge = function () {
+	var secondNode = forceController.getNodeIdByCoordinates(input.mouse.x,
 																input.mouse.y);
-		if (secondNode != null) {
-			renderer.lerpLine(graph.transformations[firstNode].x,
-							  graph.transformations[firstNode].y,
-							  graph.transformations[secondNode].x,
-							  graph.transformations[secondNode].y,
-							  "blue",
-			function (manager, graph, firstNode, secondNode) {
-				// var secondNode = forceController.getNodeIdByCoordinates(input.mouse.x,
-				// 												input.mouse.y);
-				manager.addEdge(graph, firstNode, secondNode, 10);
-				EventBus.publish("add-edge");				
-			}.bind(this, manager, graph, firstNode, secondNode));
-		}
-		renderer.stopPulseAnimation(firstNode);
-		firstNode = null;
-	} else if (button == 2) {
-		removeNode(button);
+	if (secondNode != null) {
+		renderer.lerpLine(graph.transformations[firstNode].x,
+						  graph.transformations[firstNode].y,
+						  graph.transformations[secondNode].x,
+						  graph.transformations[secondNode].y,
+						  "blue",
+		function (manager, graph, firstNode, secondNode) {
+			// var secondNode = forceController.getNodeIdByCoordinates(input.mouse.x,
+			// 												input.mouse.y);
+			manager.addEdge(graph, firstNode, secondNode, 10);
+			EventBus.publish("add-edge");				
+		}.bind(this, manager, graph, firstNode, secondNode));
+	}
+	renderer.stopPulseAnimation(firstNode);
+	firstNode = null;
+};
+
+var selectNode = function () {
+	var nodeId = forceController.getNodeIdByCoordinates(input.mouse.x,
+														input.mouse.y);
+	if (nodeId != null) {
+		firstNode = nodeId;
+		renderer.playPulseAnimation(nodeId);
 	}
 };
 
-var selectNode = function (button) {
+var showEdgeChangeDialog = function (edge) {
+	var newEdgeSize = prompt("Tell me edge size", edge.weight);
+	if (newEdgeSize) {
+		edge.weight = parseInt(newEdgeSize);
+	}
+};
+
+var detectMouseUp = function (button) {
 	if (button == 0) {
-		var nodeId = forceController.getNodeIdByCoordinates(input.mouse.x,
-															input.mouse.y);
-		if (nodeId != null) {
-			firstNode = nodeId;
-			renderer.playPulseAnimation(nodeId);
+		if (firstNode == null) {
+			var edge = forceController.getEdgeWeight(input.mouse.x,
+										  input.mouse.y);
+			if (edge != null) {
+				showEdgeChangeDialog(edge);
+			} else {
+				createNode();				
+			}
+		} else {
+			addEdge();
+		}
+	} 
+	if (button == 2) {
+		if (firstNode == null) {
+			removeNode();
 		}
 	}
 };
+
+var detectMouseDown = function (button) {
+	if (button == 0) {
+		selectNode();	
+	}
+}
 
 window.onload = function () {
 	canvas = document.getElementById("area");
@@ -99,10 +127,10 @@ window.onload = function () {
 	stateManager = new StateManager(graph);
 	input = new InputManager(canvas);
 
-	input.detectMouseUp(createNode);
-	input.detectMouseDown(selectNode);
-	input.detectMouseUp(addEdge);
-	
+	input.detectMouseUp(detectMouseUp);
+	input.detectMouseDown(detectMouseDown);
+	// input.detectMouseUp(addEdge);
+
 	update();
 }
 

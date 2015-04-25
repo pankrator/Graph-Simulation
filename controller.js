@@ -13,11 +13,11 @@ var ForceBasedController = function (graph) {
 ForceBasedController.prototype.removeNode = function(nodeId) {
 	delete this.graph.transformations[nodeId];
 	this.graph.nodeSpeed = NODE_SPEED;
-}
+};
 
 ForceBasedController.prototype.addEdge = function() {
 	this.graph.nodeSpeed = NODE_SPEED;
-}
+};
 
 ForceBasedController.prototype.addNode = function (id, x, y, radius) {
 	this.graph.transformations[id] = {
@@ -28,6 +28,30 @@ ForceBasedController.prototype.addNode = function (id, x, y, radius) {
 	};
 
 	this.graph.nodeSpeed = NODE_SPEED;
+};
+
+ForceBasedController.prototype.getEdgeWeight = function (x, y) {
+	for (var edgeId in this.graph.edges) {
+		var edge = this.graph.edges[edgeId];
+		var node1 = this.graph.transformations[edge.from];
+		var node2 = this.graph.transformations[edge.to];
+
+		var numberPosition = {
+			x: (node1.x + node2.x) / 2,
+			y: (node1.y + node2.y) / 2 - 20
+		};
+		var dir = {
+			x: x - numberPosition.x,
+			y: y - numberPosition.y
+		};
+		var len = Math.sqrt(dir.x * dir.x + dir.y * dir.y);
+
+		if (len <= 20) {
+			return edge;
+		}
+	}
+
+	return null;
 };
 
 ForceBasedController.prototype.getNodeIdByCoordinates = function (x, y) {
