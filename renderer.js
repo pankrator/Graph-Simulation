@@ -101,7 +101,8 @@ Renderer.prototype.renderEdges = function(edges) {
 			context.fillStyle = EDGE_WEIGHT_FILL_STYLE;
 			context.fillText(edge.weight, 
 							 (node1.x + node2.x) / 2,
-							 (node1.y + node2.y) / 2 - 20); // Magic
+							 (node1.y + node2.y) / 2 - 5); // Magic
+
 		}
 
 		// if (list[i].level) {

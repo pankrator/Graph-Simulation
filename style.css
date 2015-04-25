@@ -1,4 +1,6 @@
-
+body {
+	background-color: rgb(255, 252, 225);
+}
 
 .iterator-button {
 		position: fixed;
@@ -34,7 +36,33 @@
 	left:100px;
 }
 
-.area {
-	border: 1px solid black; 
+.main {
 	margin-top: 25px;
+	
+}
+
+.area {
+	vertical-align: top;
+	display: inline-block;
+	border: 1px solid black; 
+}
+
+.pannel {
+	display: inline-block;
+	height: 125px;
+	width: 50px;
+	background-color: #BDC6EA;
+	margin-left: 5px;
+	margin-top: 2px;
+}
+
+.icons {
+	width:50px;
+	height:60px;
+	cursor: pointer;
+	border-bottom: 2px solid rgb(42, 23, 23);	
+}
+
+.icons:last-of-type {
+    border-bottom:none;
 }

@@ -14,7 +14,7 @@
 }
 
 .dialog__content {
-	margin-top: 50px;
+	margin-top: -70px;
 }
 .dialog.dialog--open .dialog__content {
 	opacity: 1;
