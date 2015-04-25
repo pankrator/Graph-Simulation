@@ -4,6 +4,8 @@ var NORMAL_FILL_STYLE = "blue";
 var EDGE_STROKE_STYLE = "red";
 var EDGE_WEIGHT_FILL_STYLE = "blue";
 
+var DEFAULT_FONT = "20px Arial";
+
 var LINE_WIDTH = 5;
 var ARROW_LENGTH = 20;
 
@@ -70,6 +72,7 @@ Renderer.prototype.renderEdges = function(edges) {
 		}, EDGE_STROKE_STYLE, LINE_WIDTH);
 
 		if (edge.weight !== 0) {
+			context.font = DEFAULT_FONT; 
 			context.fillStyle = EDGE_WEIGHT_FILL_STYLE;
 			context.fillText(edge.weight, 
 							 (node1.x + node2.x) / 2,
@@ -181,6 +184,7 @@ Renderer.prototype.playPulseAnimation = function (nodeId) {
 };
 
 Renderer.prototype.lerpLine = function (fromX, fromY, toX, toY, color, callback) {
+	var animationTime = 1000 / 60;
 	var state = {
 		from: {
 			x: fromX,
@@ -200,10 +204,12 @@ Renderer.prototype.lerpLine = function (fromX, fromY, toX, toY, color, callback)
 		},
 		movePerStep: 30
 	};
+
 	var len = Math.sqrt(state.dir.x * state.dir.x + state.dir.y * state.dir.y);
 	state.dir.x /= len;
 	state.dir.y /= len;
 	state.len = len;
+	state.movePerStep = len / animationTime;
 
 	this.animations.push(function (state, callback) {
 		state.currentPos.x += state.dir.x * state.movePerStep;

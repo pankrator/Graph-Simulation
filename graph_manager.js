@@ -19,12 +19,10 @@ var GraphManager = function () {
 	this.edgeCounter = 0;
 };
 
-GraphManager.prototype.createEmptyGraph = function (directed) {
-	return {
-		directed: directed,
-		nodes: {},
-		edges: {}
-	};
+GraphManager.prototype.createEmptyGraph = function (graph, directed) {
+	graph.directed = directed;
+	graph.nodes = {};
+	graph.edges = {};
 };
 
 GraphManager.prototype.addNode = function (graph) {
@@ -102,10 +100,10 @@ GraphManager.prototype.createEdge = function (first, second, weight) {
 GraphManager.prototype.removeNode = function(graph, nodeId) {
 	var edgesToRemove = [];
 	for (var edge in graph.edges) {
-		if (graph.edges[edge].from == nodeId ||
+	if (graph.edges[edge].from == nodeId ||
 			graph.edges[edge].to == nodeId) {
 			var nodeFrom = graph.nodes[graph.edges[edge].from];
-			var edgeIndex = nodeFrom.edges.indexOf(parseInt(edge));
+		var edgeIndex = nodeFrom.edges.indexOf(parseInt(edge));
 			
 			if(edgeIndex > -1) {
 				nodeFrom.edges.splice(edgeIndex, 1);

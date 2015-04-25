@@ -1,25 +1,21 @@
 var context, canvas;
 var canvasBoundaries;
 
-// var selectNodeForIteration = false;
-// var iteratorMessage = null;
-
-// var graphManager = new GraphManager();
-// var graph = graphManager.createEmptyGraph(new ForceBasedGraphController());
-// var iterator;
-
-// var graphComponents = {
-// 	firstNode: null,
-// };
+var GraphData = function () {};
 
 var firstNode = null;
 
-var graph;
+var graph = new GraphData();
 var input;
 var manager;
 var forceController;
 var renderer;
 var stateManager;
+
+var test = function () {
+	manager.createEmptyGraph(graph, false);
+	graph.test = 1000;
+}
 
 var createNode = function (button) {
 	if (firstNode == null && button == 0) {
@@ -54,7 +50,9 @@ var addEdge = function (button) {
 							  graph.transformations[secondNode].y,
 							  "blue",
 			function (manager, graph, firstNode, secondNode) {
-				manager.addEdge(graph, firstNode, secondNode);
+				// var secondNode = forceController.getNodeIdByCoordinates(input.mouse.x,
+				// 												input.mouse.y);
+				manager.addEdge(graph, firstNode, secondNode, 10);
 				EventBus.publish("add-edge");				
 			}.bind(this, manager, graph, firstNode, secondNode));
 		}
@@ -81,8 +79,8 @@ window.onload = function () {
 	context = canvas.getContext("2d");
 
 	manager = new GraphManager();
-	graph = manager.createEmptyGraph(true);
-	forceController = new ForceBasedController(graph);
+	manager.createEmptyGraph(graph, true);
+	forceController = new ForceBasedController(graph, true);
 	renderer = new Renderer(context, graph);
 	stateManager = new StateManager(graph);
 
@@ -91,30 +89,6 @@ window.onload = function () {
 	input.detectMouseUp(createNode);
 	input.detectMouseDown(selectNode);
 	input.detectMouseUp(addEdge);
-
-	// window.addEventListener("keydown", keyboardListener);
-	// canvas.addEventListener("mousemove", mouseMoveListener);
-	// canvas.addEventListener("click", mouseClickListener);
-	// canvas.addEventListener("mousedown", mouseDownListener);
-	// canvas.addEventListener("mouseup", mouseUpListener);
-	// canvas.addEventListener("contextmenu", contextMenuListener);
-	
-	// var bfsButton = document.getElementById("BFSButton");
-	// bfsButton.onclick = function () {
-	// 	iterator = new BFSIterator(graph);
-	// 	selectNodeForIteration = true;
-	// 	iteratorMessage = "Select node to start BFS";
-	// };
-
-	// var dfsButton = document.getElementById("DFSButton");
-	// dfsButton.onclick = function () {
-	// 	iterator = new DFSIterator(graph);
-	// 	selectNodeForIteration = true;
-	// 	iteratorMessage = "Select node to start DFS";
-	// };
-
-	// context.font = "normal 20px Arial";
-	// canvasBoundaries = canvas.getBoundingClientRect();
 	
 	update();
 }
