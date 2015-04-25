@@ -31,6 +31,8 @@ var createDirectedGraph = function() {
 
 document.getElementById("not_directed_graph").addEventListener("click", createNotDirectedGraph);
 document.getElementById("directed_graph").addEventListener("click", createDirectedGraph);
+document.getElementById("generate_not_directed_graph").addEventListener("click", createNotDirectedGraph);
+document.getElementById("generate_directed_graph").addEventListener("click", createDirectedGraph);
 // document.getElementById("save").addEventListener("click", func);
 
 var createNode = function () {
