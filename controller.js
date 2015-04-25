@@ -53,5 +53,12 @@ ForceBasedController.prototype.getCircleCoordinatesOnNode = function (x, y, node
 };
 
 ForceBasedController.prototype.update = function () {
+	// for (var id in this.graph.transformations) {
+		// this.graph.
+		// this.action(this.graph.nodes[id])
+	// }
+}
+
+ForceBasedController.prototype.action = function (node) {
 
 }

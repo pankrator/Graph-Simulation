@@ -13,8 +13,6 @@ var Renderer = function (context, graph) {
 
 	EventBus.subscribe("add-node", this.addNode.bind(this));
 	EventBus.subscribe("visit-node", this.visitNode.bind(this));
-	EventBus.subscribe("node-selected", this.nodeSelected.bind(this));
-	EventBus.subscribe("node-released", this.nodeReleased.bind(this));
 };
 
 Renderer.prototype.addNode = function (nodeId) {
@@ -43,13 +41,13 @@ Renderer.prototype.renderNodes = function () {
 
 Renderer.prototype.renderEdges = function(edges) {
 	for (var i = 0; i < edges.length; i++) {
-		var edge = graph.edges[edge];
+		var edge = this.graph.edges[edges[i]];
 		
 		context.strokeStyle = EDGE_STROKE_STYLE;
-		var node1 = graph.transformations[edge.from];
-		var node2 = graph.transformations[edge.to];
+		var node1 = this.graph.transformations[edge.from];
+		var node2 = this.graph.transformations[edge.to];
 
-		if (!graph.directed) {
+		if (!this.graph.directed) {
 			context.beginPath();
 			var dir = {
 				x: node1.x - node2.x,
@@ -61,16 +59,20 @@ Renderer.prototype.renderEdges = function(edges) {
 				dir.y /= len;
 			}
 
-			context.moveTo(node1.x + (-1) * dir.x * node1.radius,
-			 			   node1.y + (-1) * dir.y * node1.radius);
-			context.lineTo(node2.x + dir.x * node2.radius,
-						   node2.y + dir.y * node2.radius);
-			context.stroke();
+			this.renderLine({
+				x: node1.x + (-1) * dir.x * node1.radius,
+				y: node1.y + (-1) * dir.y * node1.radius
+			}, {
+				x: node2.x + dir.x * node2.radius,
+				y: node2.y + dir.y * node2.radius
+			}, EDGE_STROKE_STYLE);
 
-			context.fillStyle = EDGE_WEIGHT_FILL_STYLE;
-			context.fillText(edge.weight, 
-							 Math.abs(node1.x - node2.x) / 2,
-							 Math.abs(node1.y - node2.y) / 2 - 20); // Magic
+			if (edge.weight !== 0) {
+				context.fillStyle = EDGE_WEIGHT_FILL_STYLE;
+				context.fillText(edge.weight, 
+								 (node1.x + node2.x) / 2,
+								 (node1.y + node2.y) / 2 - 20); // Magic
+			}
 
 			// if (list[i].level) {
 			// 	context.fillStyle = "blue";
@@ -113,32 +115,26 @@ Renderer.prototype.visitNode = function (nodeId) {
 	animationState.fillColor = VISITED_FILL_STYLE;
 };
 
-Renderer.prototype.nodeReleased = function (nodeId) {
-	this.graph.animationStates[nodeId].selected = false;
+Renderer.prototype.stopPulseAnimation = function (nodeId) {
+	this.graph.animationStates[nodeId].pulsePlaying = false;
 };
 
-Renderer.prototype.nodeSelected = function (nodeId) {
-	if (!this.graph.animationStates[nodeId]) {
-		this.graph.animationStates[nodeId] = {};
-	}
+Renderer.prototype.playPulseAnimation = function (nodeId) {
 	var animationState = this.graph.animationStates[nodeId];
+	var transform = this.graph.transformations[nodeId];
 
-	if (animationState.selected) {
+	if (animationState.pulsePlaying) {
 		return; // Prevent from double attaching animation
 	}
 
-	var currentAnimState = {};
+	var prevAnimationState = {};
 	for (var key in animationState) {
-		currentAnimState[key] = animationState[key];
+		prevAnimationState[key] = animationState[key];
 	}
 
-	animationState.selected = true;
-	animationState.shrinking = false;
+	animationState.pulsePlaying = true;
 
-	this.animations.push(function(nodeId, prevAnimState) {
-		var animationState = this.graph.animationStates[nodeId];
-		var transform = this.graph.transformations[nodeId];
-
+	this.animations.push(function(transform, animationState, prevAnimationState) {
 		transform.radius += animationState.shrinking ? -1 : 1;
 		
 		if (transform.radius < 25 && animationState.shrinking) {
@@ -150,13 +146,13 @@ Renderer.prototype.nodeSelected = function (nodeId) {
 			animationState.fill = false;
 		}
 
-		if (!animationState.selected) {
+		if (!animationState.pulsePlaying) {
 			transform.radius = 30;
-			this.graph.animationStates[nodeId] = prevAnimState;
+			animationState.fill = prevAnimationState.fill;
 		}
 
-		return animationState.selected;
-	}.bind(this, nodeId, currentAnimState));
+		return animationState.pulsePlaying;
+	}.bind(this, transform, animationState, prevAnimationState));
 };
 
 Renderer.prototype.render = function () {

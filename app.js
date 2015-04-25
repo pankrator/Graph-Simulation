@@ -38,7 +38,7 @@ var addEdge = function () {
 		if (secondNode != null) {
 			manager.addEdge(graph, firstNode, secondNode);
 		}
-		EventBus.publish("node-released", firstNode);
+		renderer.stopPulseAnimation(firstNode);
 		firstNode = null;
 	}
 };
@@ -48,7 +48,7 @@ var selectNode = function () {
 														input.mouse.y);
 	if (nodeId != null) {
 		firstNode = nodeId;
-		EventBus.publish("node-selected", nodeId);
+		renderer.playPulseAnimation(nodeId);
 	}
 };
 

@@ -30,7 +30,7 @@ GraphManager.prototype.createEmptyGraph = function () {
 GraphManager.prototype.addNode = function (graph) {
 	graph.nodes[++this.nodeCounter] = {
 		id: this.nodeCounter,
-		edges: {}
+		edges: []
 	};
 
 	return this.nodeCounter;
@@ -39,20 +39,20 @@ GraphManager.prototype.addNode = function (graph) {
 };
 
 
-GraphManager.prototype.addEdge = function (graph, first, second, weight) {
-	var edge = createEdge(first, second, weight);
+GraphManager.prototype.addEdge = function (graph, firstId, secondId, weight) {
+	var edge = this.createEdge(firstId, secondId, weight);
 	graph.edges[edge.id] = edge;
 	EventBus.publish("add-edge", edge.id);
 
 	if (GraphUtil.isDirected(graph)) {
-		graph.nodes[first].edges.push(edge.id);
+		graph.nodes[firstId].edges.push(edge.id);
 	} else {
-		var revertEdge = createEdge(second, first, weight);
-		graph.edges[revertEdge.id] = edge;
-		EventBus.publish("add-edge", revertEdge.id);
+		var reverseEdge = this.createEdge(secondId, firstId, weight);
+		graph.edges[reverseEdge.id] = edge;
+		EventBus.publish("add-edge", reverseEdge.id);
 
-		graph.nodes[first].edges.push(edge.id);
-		graph.nodes[second].edges.push(revertEdge.id);
+		graph.nodes[firstId].edges.push(edge.id);
+		graph.nodes[secondId].edges.push(reverseEdge.id);
 	}
 };
 
