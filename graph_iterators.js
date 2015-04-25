@@ -59,7 +59,7 @@ DFSIterator.prototype.recursive = function (v, parent) {
 		node.color = FINISHED_NODE_COLOR;
 		node.fill = true;
 	}
-}
+};
 
 DFSIterator.prototype.start = function (startVertex) {
 	if (this.started) {
@@ -92,74 +92,82 @@ DFSIterator.prototype.reset = function () {
 		list[i].radius = 30; // Magic
 		list[i].parent = null;
 	}
-}
-
-var BFSIterator = function (graph) {
-	this.k = 0;
-	this.level = 1;
-	this.queue = [];
-	this.graph = graph;
-	this.used = [];
-	this.started = false;
 };
 
-BFSIterator.prototype.next = function () {
-	if (this.queue.length <= this.k) {
-		return;
-	}
-	var v = this.queue[this.k++];
-	var node = this.graph.list[v];
-	if (!node.rootNode) {
-		node.color = FINISHED_NODE_COLOR;
-		node.fill = true;
-		// node.radius = 30;
-	}
-	var neighbours = node.neighbours;
+var BFSIterator = function (graph) {
+	this.queue = [];
+	this.graph = graph;
+	this.discovered = {};
+	this.started = false;
+	this.currentState = -1;
+	this.states = [];
+};
 
-	for (var i = 0; i < neighbours.length; i++) {
-		if (!this.used[neighbours[i]]) {
-			this.queue.push(neighbours[i]);
-			var node = this.graph.list[neighbours[i]];
-			node.color = SEEN_NODE_COLOR;
-			node.fill = true;
-			// node.radius = 40;
-			node.level = this.used[v] + 1;
-			this.used[neighbours[i]] = this.used[v] + 1;
-		}
+BFSIterator.prototype.next = function() {
+	this.currentState++;
+	if (this.currentState >= this.states.length) {
+		this.currentState = this.states.length - 1;
 	}
-}
 
-BFSIterator.prototype.start = function (startVertex) {
+	this.graph.states = this.states[this.currentState];
+};
+
+BFSIterator.prototype.previous = function() {
+	this.currentState--;
+
+	if(this.currentState < 0) {
+		this.currentState = 0;
+	}
+
+	this.graph.states = this.states[this.currentState];
+};
+
+BFSIterator.prototype.start = function (startId) {
 	if (this.started) {
 		return;
 	}
 
-	this.started = true;
-	this.queue.push(startVertex.index);
-	this.used[startVertex.index] = this.level;
-	startVertex.color = ROOT_NODE_COLOR;
-	startVertex.fill = true;
-	startVertex.rootNode = true;
+	var initialState = {};
+	for (var node in this.graph.nodes) {
+		this.discovered[node] = false;
+		initialState[node] = { visited: false, toBeVisited: false };
+	}
 
-	// while (this.queue.length > this.k) {
-	this.next();
-	// }
-}
+	this.started = true;
+	this.queue.push(startId);
+	initialState[startId].toBeVisited = true;
+	initialState[startId].level = 0;
+	this.states.push(initialState);
+	this.discovered[startId] = true;
+
+	while (this.queue.length > 0) {
+		var parentId = this.queue.shift();
+		var state = _.cloneDeep(this.states[this.states.length - 1]);
+		state[parentId].visited = true;
+		var edgesTo = this.graph.nodes[parentId].edges;
+		for (var i = 0; i < edgesTo.length; i++) {
+			var childId = this.graph.edges[edgesTo[i]].to;
+			if (!this.discovered[childId]) {
+				this.queue.push(childId);
+				state[childId].toBeVisited = true;
+				state[childId].level = state[parentId].level + 1;
+				this.discovered[childId] = true;
+			}
+		}
+
+		this.states.push(state);
+	}
+};
 
 BFSIterator.prototype.reset = function () {
-	this.k = 0;
-	this.level = 1;
 	this.queue = [];
-	this.used = [];
-	this.started = false;
+	this.previousNodes = [];
+	this.nextNodes = [];
+	this.discovered = {};
 
-	var list = this.graph.list;
-	for (var i = 0; i < list.length; i++) {
-		list[i].rootNode = false;
-		list[i].color = null;
-		list[i].fill = null;
-		list[i].level = null;
-		list[i].radius = 30; // Magic
+	var states = this.graph.states;
+	for (var nodeId in states) {
+		states[nodeId].active = false;
+		states[nodeId].visited = false;
 	}
-}
-
+};

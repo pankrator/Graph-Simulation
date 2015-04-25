@@ -1,4 +1,5 @@
 var VISITED_FILL_STYLE = "black";
+var TO_BE_VISITED_FILL_STYLE = "aqua";
 var NORMAL_STROKE_STYLE = "black";
 var NORMAL_FILL_STYLE = "blue";
 var EDGE_STROKE_STYLE = "red";
@@ -33,6 +34,29 @@ Renderer.prototype.renderNodes = function () {
 		var node = this.graph.nodes[id];
 		var transform = this.graph.transformations[id];
 		var animationState = this.graph.animationStates[id];
+		
+		var state = this.graph.states[id];
+		if (state) {
+			if (state.visited) {
+				animationState.color = VISITED_FILL_STYLE;
+				animationState.fill = true;
+			} else if (state.toBeVisited) {
+				animationState.color = TO_BE_VISITED_FILL_STYLE;
+				animationState.fill = true;
+			} else {
+				animationState.color = NORMAL_STROKE_STYLE;
+				animationState.fill = false;
+				animationState.fillColor = NORMAL_FILL_STYLE;
+			}
+		}
+
+		if (state.level !== undefined) {
+			context.font = "20px Arial";
+			context.fillStyle = EDGE_WEIGHT_FILL_STYLE;
+			context.fillText(state.level, 
+							 transform.x,
+							 transform.y - transform.radius - 10);
+		}
 
 		this.renderCircle(transform.x, transform.y,
 						  transform.radius, 

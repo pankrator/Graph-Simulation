@@ -122,7 +122,7 @@ window.onload = function () {
 
 	manager = new GraphManager();
 	manager.createEmptyGraph(graph, true);
-	forceController = new ForceBasedController(graph, true);
+	forceController = new ForceBasedController(graph);
 	renderer = new Renderer(context, graph);
 	stateManager = new StateManager(graph);
 	input = new InputManager(canvas);
