@@ -98,3 +98,25 @@ GraphManager.prototype.createEdge = function (first, second, weight) {
 		to: second
 	};
 };
+
+GraphManager.prototype.removeNode = function(graph, nodeId) {
+	var edgesToRemove = [];
+	for (var edge in graph.edges) {
+		if (graph.edges[edge].from == nodeId ||
+			graph.edges[edge].to == nodeId) {
+			var nodeFrom = graph.nodes[graph.edges[edge].from];
+			var edgeIndex = nodeFrom.edges.indexOf(parseInt(edge));
+			
+			if(edgeIndex > -1) {
+				nodeFrom.edges.splice(edgeIndex, 1);
+				edgesToRemove.push(edge);
+			}
+		}
+	}
+
+	for (var i = 0; i < edgesToRemove.length; i++) {
+		delete graph.edges[edgesToRemove[i]];
+	}
+
+	delete graph.nodes[nodeId];
+};

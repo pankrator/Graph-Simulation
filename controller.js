@@ -7,7 +7,13 @@ var ForceBasedController = function (graph) {
 
 	EventBus.subscribe("add-node", this.addNode.bind(this));
 	EventBus.subscribe("add-edge", this.addEdge.bind(this));
+	EventBus.subscribe("remove-node", this.removeNode.bind(this));
 };
+
+ForceBasedController.prototype.removeNode = function(nodeId) {
+	delete this.graph.transformations[nodeId];
+	this.graph.nodeSpeed = NODE_SPEED;
+}
 
 ForceBasedController.prototype.addEdge = function() {
 	this.graph.nodeSpeed = NODE_SPEED;

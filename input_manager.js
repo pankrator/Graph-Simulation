@@ -20,14 +20,14 @@ var InputManager = function (canvas) {
 }
 
 InputManager.prototype.detectMouseDown = function (callback) {
-	this.mouseDownCallbacks.push(function () {
-		callback();
+	this.mouseDownCallbacks.push(function (button) {
+		callback(button);
 	}.bind(this));
 }
 
 InputManager.prototype.detectMouseUp = function (callback) {
-	this.mouseUpCallbacks.push(function () {
-		callback();
+	this.mouseUpCallbacks.push(function (button) {
+		callback(button);
 	}.bind(this));
 }
 

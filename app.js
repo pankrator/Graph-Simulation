@@ -21,8 +21,8 @@ var forceController;
 var renderer;
 var stateManager;
 
-var createNode = function () {
-	if (firstNode == null) {
+var createNode = function (button) {
+	if (firstNode == null && button == 0) {
 		var nodeIndex = manager.addNode(graph);
 		EventBus.publish("add-node", nodeIndex, 
 								 	 input.mouse.x,
@@ -31,16 +31,28 @@ var createNode = function () {
 	}
 };
 
-var addEdge = function () {
-	if (firstNode != null) {
+var removeNode = function (button) {
+	if(button == 2) {
+		var nodeToRemove = forceController.getNodeIdByCoordinates(input.mouse.x,
+																  input.mouse.y);
+		
+		if(nodeToRemove != null) {
+			manager.removeNode(graph, nodeToRemove);
+			EventBus.publish("remove-node", nodeToRemove);
+		}
+	}
+}
+
+var addEdge = function (button) {
+	if (firstNode != null && button == 0) {
 		var secondNode = forceController.getNodeIdByCoordinates(input.mouse.x,
 																input.mouse.y);
 		if (secondNode != null) {
 			renderer.lerpLine(graph.transformations[firstNode].x,
-										  graph.transformations[firstNode].y,
-										  graph.transformations[secondNode].x,
-										  graph.transformations[secondNode].y,
-										  "blue",
+							  graph.transformations[firstNode].y,
+							  graph.transformations[secondNode].x,
+							  graph.transformations[secondNode].y,
+							  "blue",
 			function (manager, graph, firstNode, secondNode) {
 				manager.addEdge(graph, firstNode, secondNode);
 				EventBus.publish("add-edge");				
@@ -48,15 +60,19 @@ var addEdge = function () {
 		}
 		renderer.stopPulseAnimation(firstNode);
 		firstNode = null;
+	} else if (button == 2) {
+		removeNode(button);
 	}
 };
 
-var selectNode = function () {
-	var nodeId = forceController.getNodeIdByCoordinates(input.mouse.x,
-														input.mouse.y);
-	if (nodeId != null) {
-		firstNode = nodeId;
-		renderer.playPulseAnimation(nodeId);
+var selectNode = function (button) {
+	if (button == 0) {
+		var nodeId = forceController.getNodeIdByCoordinates(input.mouse.x,
+															input.mouse.y);
+		if (nodeId != null) {
+			firstNode = nodeId;
+			renderer.playPulseAnimation(nodeId);
+		}
 	}
 };
 
