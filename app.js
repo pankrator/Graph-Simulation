@@ -37,6 +37,7 @@ var addEdge = function () {
 																input.mouse.y);
 		if (secondNode != null) {
 			manager.addEdge(graph, firstNode, secondNode);
+			EventBus.publish("add-edge");
 		}
 		renderer.stopPulseAnimation(firstNode);
 		firstNode = null;
@@ -165,6 +166,9 @@ var update = function () {
 				y: input.mouse.y
 		}, "red");
 	}
+
+	forceController.update();
+
 	// context.clearRect(0, 0, 1500, 2000);
 
 	// graphManager.simulate(graph);

@@ -42,14 +42,12 @@ GraphManager.prototype.addNode = function (graph) {
 GraphManager.prototype.addEdge = function (graph, firstId, secondId, weight) {
 	var edge = this.createEdge(firstId, secondId, weight);
 	graph.edges[edge.id] = edge;
-	EventBus.publish("add-edge", edge.id);
 
 	if (GraphUtil.isDirected(graph)) {
 		graph.nodes[firstId].edges.push(edge.id);
 	} else {
 		var reverseEdge = this.createEdge(secondId, firstId, weight);
-		graph.edges[reverseEdge.id] = edge;
-		EventBus.publish("add-edge", reverseEdge.id);
+		graph.edges[reverseEdge.id] = reverseEdge;
 
 		graph.nodes[firstId].edges.push(edge.id);
 		graph.nodes[secondId].edges.push(reverseEdge.id);
