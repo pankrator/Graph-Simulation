@@ -17,6 +17,20 @@ var test = function () {
 	graph.test = 1000;
 }
 
+var createNotDirectedGraph = function() {
+	alert("lqlq");
+	graph = manager.createEmptyGraph(false);
+}
+
+var createDirectedGraph = function() {
+	graph = manager.createEmptyGraph(true);
+}
+
+document.getElementById("not_directed_graph").addEventListener("click", createNotDirectedGraph);
+document.getElementById("directed_graph").addEventListener("click", createDirectedGraph);
+// document.getElementById("save").addEventListener("click", func);
+
+
 var createNode = function (button) {
 	if (firstNode == null && button == 0) {
 		var nodeIndex = manager.addNode(graph);
@@ -83,7 +97,6 @@ window.onload = function () {
 	forceController = new ForceBasedController(graph, true);
 	renderer = new Renderer(context, graph);
 	stateManager = new StateManager(graph);
-
 	input = new InputManager(canvas);
 
 	input.detectMouseUp(createNode);

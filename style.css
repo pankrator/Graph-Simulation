@@ -1,0 +1,40 @@
+
+
+.iterator-button {
+		position: fixed;
+		display: inline-block;
+		border: 1px solid black;
+		width: 100px;
+		height: 60px;
+		margin-left: 20px;
+}
+
+.iterator-button.bfs-button {
+	background-image: url("BFS-background.png");
+	background-size: 100px 60px;
+}
+
+.iterator-button.dfs-button {
+	background-image: url("DFS-background.png");
+	background-size: 100px 60px;
+	position: fixed;
+	top: 75px;
+}
+
+
+.settings_menu {
+	position:relative;
+	background-color: #1F4284;
+	height:100px;
+	width: 99%;
+
+}
+.settings_menu p {
+	position:absolute;
+	left:100px;
+}
+
+.area {
+	border: 1px solid black; 
+	margin-top: 25px;
+}
