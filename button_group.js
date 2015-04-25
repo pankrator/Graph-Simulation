@@ -2,14 +2,18 @@ var ButtonGroup = function() {
 	this.buttons = [];
 }
 
-var unselect = function(ev) {
-	for (var i = 0; i < buttons.length; i++) {
-		buttons[i].style.background = "blue";
+ButtonGroup.prototype.unselect = function(ev) {
+	for (var i = 0; i < this.buttons.length; i++) {
+		this.buttons[i].style.background = "#BDC6EA";
 	};
-	ev.target.style.background = "red";
-}.bind(this);
+	ev.target.style.background = "#4F68CB";
+};
 
 ButtonGroup.prototype.addButton = function(buttonElement) {
 	this.buttons.push(buttonElement);
-	buttonElement.addEventListener("click", unselect);
+	buttonElement.addEventListener("click", this.unselect.bind(this));
+}
+
+ButtonGroup.prototype.addListener = function (buttonElement, listener) {
+	buttonElement.addEventListener("click", listener);
 }

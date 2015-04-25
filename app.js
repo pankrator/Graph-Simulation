@@ -5,6 +5,8 @@ var GraphData = function () {};
 
 var firstNode = null;
 
+var leftPannel = new ButtonGroup();
+
 var graph = new GraphData();
 var input;
 var manager;
@@ -29,6 +31,7 @@ var createDirectedGraph = function() {
 	graph = manager.createEmptyGraph(true);
 }
 
+//TODO change functions
 document.getElementById("not_directed_graph").addEventListener("click", createNotDirectedGraph);
 document.getElementById("directed_graph").addEventListener("click", createDirectedGraph);
 document.getElementById("generate_not_directed_graph").addEventListener("click", createNotDirectedGraph);
@@ -135,6 +138,8 @@ window.onload = function () {
 
 	EventBus.subscribe("next-state", handleNextState);
 
+	leftPannel.addButton(document.getElementById("hand_icon"));
+	leftPannel.addButton(document.getElementById("line"));
 	update();
 }
 
