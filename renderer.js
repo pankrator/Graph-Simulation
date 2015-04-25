@@ -18,6 +18,7 @@ var Renderer = function (context, graph) {
 	this.animations = [];
 
 	EventBus.subscribe("add-node", this.addNode.bind(this));
+	EventBus.subscribe("lerp-line", this.lerpLine.bind(this));
 	EventBus.subscribe("visit-node", this.visitNode.bind(this));
 };
 

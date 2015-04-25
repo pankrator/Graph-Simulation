@@ -131,7 +131,25 @@ window.onload = function () {
 	input.detectMouseDown(detectMouseDown);
 	// input.detectMouseUp(addEdge);
 
+	EventBus.subscribe("next-state", handleNextState);
+
 	update();
+}
+
+var handleNextState = function (previousState, currentState) {
+	for (var id in previousState) {
+
+		if (previousState[id].visited != currentState[id].visited &&
+			currentState[id].visited && currentState[id].parentId != undefined) {
+			var parentTransformation = this.graph.transformations[currentState[id].parentId];
+			var currentTransformation = this.graph.transformations[id];
+			renderer.lerpLine(parentTransformation.x,
+							  parentTransformation.y,
+							  currentTransformation.x,
+							  currentTransformation.y,
+							  "yellow");
+		}
+	}
 }
 
 var contextMenuListener = function (ev) {

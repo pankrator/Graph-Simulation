@@ -109,6 +109,8 @@ BFSIterator.prototype.next = function() {
 		this.currentState = this.states.length - 1;
 	}
 
+	EventBus.publish("next-state", this.graph.states, this.states[this.currentState]);
+	
 	this.graph.states = this.states[this.currentState];
 };
 
@@ -151,6 +153,7 @@ BFSIterator.prototype.start = function (startId) {
 				this.queue.push(childId);
 				state[childId].toBeVisited = true;
 				state[childId].level = state[parentId].level + 1;
+				state[childId].parentId = parentId;
 				this.discovered[childId] = true;
 			}
 		}
