@@ -4,6 +4,7 @@ var canvasBoundaries;
 var GraphData = function () {};
 
 var firstNode = null;
+var movingNode = null;
 
 var leftPanel = new ButtonGroup();
 
@@ -120,6 +121,12 @@ var handleKeyPress = function (event) {
 
 var detectMouseUp = function (event) {
 	// stateMachine.sendInput(event, "up");
+
+	if (movingNode) {
+		renderer.stopPulseAnimation(movingNode);
+		movingNode = null;
+		return;
+	}
 
 	if (event.target != canvas) {
 		return;
@@ -294,6 +301,11 @@ var update = function () {
 				x: input.mouse.x,
 				y: input.mouse.y
 		}, "red");
+	}
+
+	if (movingNode && selectionState.tool == "HAND") {
+		graph.transformations[movingNode].x = input.mouse.x;
+		graph.transformations[movingNode].y = input.mouse.y;
 	}
 
 	if (selectionState.tool == "ITERATOR") {

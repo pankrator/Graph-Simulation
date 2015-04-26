@@ -124,7 +124,7 @@ ForceBasedController.prototype.attractToNeighbours = function(node) {
 			transformationFrom.y -= dir.y * this.graph.nodeSpeed * (len * scalenLen || 1);
 		}
 	}
-}
+};
 
 ForceBasedController.prototype.repelFromUnrelated = function(nodeId) {
 	var nodeTransformation = this.graph.transformations[nodeId];
@@ -157,7 +157,7 @@ ForceBasedController.prototype.repelFromUnrelated = function(nodeId) {
 			transformation.y -= dir.y * this.graph.nodeSpeed / (len * scaleLen || 1);
 		}
 	}
-}
+};
 
 ForceBasedController.prototype.repelFromDimensions = function(nodeId) {
 	var nodeTransformation = this.graph.transformations[nodeId];
@@ -187,15 +187,19 @@ ForceBasedController.prototype.action = function (nodeId) {
 	this.attractToNeighbours(this.graph.nodes[nodeId]);
 	this.repelFromUnrelated(nodeId);
 	this.repelFromDimensions(nodeId);
-}
+};
 
 ForceBasedController.prototype.update = function () {
 	for (var nodeId in this.graph.nodes) {
 		this.action(nodeId);
 	}
 
+	if (movingNode) {
+		this.graph.nodeSpeed = NODE_SPEED;
+	}
+
 	this.graph.nodeSpeed *= 0.99;
 	if(this.graph.nodeSpeed < 0.5) {
 		this.graph.nodeSpeed = 0;
 	}
-}
+};

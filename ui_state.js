@@ -26,7 +26,8 @@ var selectNodeForConnecting = function (nodeId) {
 		firstNode = nodeId;
 		renderer.playPulseAnimation(nodeId);
 	} else if (selectionState.tool == "HAND") {
-		//TODO: Move the nodes
+		movingNode = nodeId;
+		renderer.playPulseAnimation(nodeId);
 	}
 }
 
