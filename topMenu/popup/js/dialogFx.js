@@ -44,7 +44,8 @@
 		this.el = el;
 		this.options = extend( {}, this.options );
 		extend( this.options, options );
-		this.ctrlClose = this.el.querySelector( '[data-dialog-close]' );
+		// this.ctrlClose = this.el.querySelector( '[data-dialog-close]' );
+		this.ctrlsClose = this.el.querySelectorAll( '[data-dialog-close]' );
 		this.isOpen = false;
 		this._initEvents();
 	}
@@ -59,7 +60,11 @@
 		var self = this;
 
 		// close action
-		this.ctrlClose.addEventListener( 'click', this.toggle.bind(this) );
+		// this.ctrlClose.addEventListener( 'click', this.toggle.bind(this) );
+
+		for (var i = 0; i < this.ctrlsClose.length; i++) {
+			this.ctrlsClose[i].addEventListener('click', this.toggle.bind(this));
+		}
 
 		// esc key closes dialog
 		document.addEventListener( 'keydown', function( ev ) {

@@ -25,15 +25,11 @@
 				<div class="menu-wrap">
 					<nav class="menu">
 						<div class="icon-list">
-							<a href="#" id="not_directed_graph"><span>Нов неориентиран граф</span></a>
-							<a href="#" id="directed_graph"><span>Нов ориентиран граф</span></a>
+							<a href="#"><span data-new="new-graph" class="trigger">Нов граф</span></a>
+							<!-- <a href="#" id="directed_graph"><span>Нов ориентиран граф</span></a> -->
 							<a href="#" id="save"><span>Запазване на граф</span></a>
-							<a href="#"><div><span data-dialog="somedialog" class="trigger">Избери алгоритъм</span></div></a>
-							<a href="#" id="generate_not_directed_graph"><span>Генерирай неориентиран граф</span></a>
-							<a href="#" id="generate_directed_graph"><span>Генерирай ориентиран граф</span></a>
-														
-							<!-- <a href="#"><i class="fa fa-fw fa-bar-chart-o"></i><span>Analytics</span></a>
-							<a href="#"><i class="fa fa-fw fa-newspaper-o"></i><span>Reading List</span></a> -->
+							<a href="#"><div><span data-algo="algorithms" class="trigger">Избери алгоритъм</span></div></a>
+							<a href="#"><span  data-random="generate" class="trigger">Генерирай граф</span></a>
 						</div>
 					</nav>
 				</div>
@@ -46,7 +42,7 @@
 			<!-- <p>This is menu</p> -->
 		</div>
 
-		<div id="somedialog" class="dialog">
+		<div id="new-graph" class="dialog">
 			<div class="dialog__overlay"></div>
 			<div class="dialog__content">
 				<div class="morph-shape">
@@ -55,10 +51,42 @@
 					</svg>
 				</div>
 				<div class="dialog-inner">
-					<div><button class="action">BFS</button></div>
-					<div><button class="action">DFS</button></div>
-					<div><button class="action">Something interesting</button></div>
-					<div><button class="action">My Alg</button></div>
+					<div><a href="javascript: window.close();"><button class="action" data-dialog-close id="not_directed_graphh">Нов неориентиран граф</button></a></div>
+					<div><button class="action" data-dialog-close id="directed_graph">Нов ориентиран граф</button></div>
+					<div><button class="action" data-dialog-close>Close</button></div>
+				</div>
+			</div>
+		</div>
+
+		<div id="algorithms" class="dialog">
+			<div class="dialog__overlay"></div>
+			<div class="dialog__content">
+				<div class="morph-shape">
+					<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 560 280" preserveAspectRatio="none">
+						<rect x="3" y="3" fill="none" width="556" height="276"/>
+					</svg>
+				</div>
+				<div class="dialog-inner">
+					<div><button class="action" data-dialog-close>BFS</button></div>
+					<div><button class="action" data-dialog-close>DFS</button></div>
+					<div><button class="action" data-dialog-close>Something interesting</button></div>
+					<div><button class="action" data-dialog-close>My Alg</button></div>
+					<div><button class="action" data-dialog-close>Close</button></div>
+				</div>
+			</div>
+		</div>
+
+		<div id="generate" class="dialog">
+			<div class="dialog__overlay"></div>
+			<div class="dialog__content">
+				<div class="morph-shape">
+					<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 560 280" preserveAspectRatio="none">
+						<rect x="3" y="3" fill="none" width="556" height="276"/>
+					</svg>
+				</div>
+				<div class="dialog-inner">
+					<div><button class="action" id="generate_not_directed_graph" data-dialog-close>Генерирай неориентиран граф</button></div>
+					<div><button class="action" id="generate_directed_graph" data-dialog-close>Генерирай ориентиран граф</button></div>
 					<div><button class="action" data-dialog-close>Close</button></div>
 				</div>
 			</div>
@@ -77,8 +105,31 @@
 		<script>
 			(function() {
 
-				var dlgtrigger = document.querySelector( '[data-dialog]' ),
-					somedialog = document.getElementById( dlgtrigger.getAttribute( 'data-dialog' ) ),
+				var dlgtrigger = document.querySelector( '[data-new]' ),
+					somedialog = document.getElementById( dlgtrigger.getAttribute( 'data-new' ) ),
+					dlg = new DialogFx( somedialog );
+
+				dlgtrigger.addEventListener( 'click', dlg.toggle.bind(dlg) );
+
+			})();
+		</script>
+		<script>
+			(function() {
+
+				var dlgtrigger = document.querySelector( '[data-algo]' ),
+					somedialog = document.getElementById( dlgtrigger.getAttribute( 'data-algo' ) ),
+					dlg = new DialogFx( somedialog );
+
+				dlgtrigger.addEventListener( 'click', dlg.toggle.bind(dlg) );
+
+			})();
+		</script>
+
+		<script>
+			(function() {
+
+				var dlgtrigger = document.querySelector( '[data-random]' ),
+					somedialog = document.getElementById( dlgtrigger.getAttribute( 'data-random' ) ),
 					dlg = new DialogFx( somedialog );
 
 				dlgtrigger.addEventListener( 'click', dlg.toggle.bind(dlg) );

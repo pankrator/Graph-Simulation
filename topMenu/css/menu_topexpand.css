@@ -141,6 +141,7 @@ body,
 	opacity: 1;
 	-webkit-transition: opacity 0.4s 0.4s;
 	transition: opacity 0.4s 0.4s;
+	font-size: 50px;
 }
 
 .show-menu .icon-list a:nth-child(2) {
