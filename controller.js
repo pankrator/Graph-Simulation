@@ -1,9 +1,11 @@
 var NODE_SPEED = 20;
 
-var ForceBasedController = function (graph, height, width) {
+var ForceBasedController = function (graph, left, top, height, width) {
 	this.graph = graph;
 	this.graph.transformations = {};
 	this.graph.nodeSpeed = NODE_SPEED;
+	this.left = left;
+	this.top = top;
 	this.height = height;
 	this.width = width;
 
@@ -160,24 +162,24 @@ ForceBasedController.prototype.repelFromUnrelated = function(nodeId) {
 ForceBasedController.prototype.repelFromDimensions = function(nodeId) {
 	var nodeTransformation = this.graph.transformations[nodeId];
 
-	var left = nodeTransformation.x;
-	var right = this.width - nodeTransformation.x;
-	var top = nodeTransformation.y;
-	var bottom = this.height - nodeTransformation.y;
+	var transformationLeft = nodeTransformation.x;
+	var transformationRight = this.width - nodeTransformation.x;
+	var transformationtop = nodeTransformation.y;
+	var transformationbottom = this.height - nodeTransformation.y;
 
 	var minDistance = nodeTransformation.radius * 4 + 50;
 	var scaleLen = 1/8;
 
-	if (left < minDistance) {
-		nodeTransformation.x += this.graph.nodeSpeed / (left * scaleLen || 1);
-	} else if (right < minDistance) {
-		nodeTransformation.x -= this.graph.nodeSpeed / (right * scaleLen || 1);
+	if (transformationLeft < minDistance + this.left) {
+		nodeTransformation.x += this.graph.nodeSpeed / (transformationLeft * scaleLen || 1);
+	} else if (transformationRight < minDistance) {
+		nodeTransformation.x -= this.graph.nodeSpeed / (transformationRight * scaleLen || 1);
 	} 
 
-	if (top < minDistance) {
-		nodeTransformation.y += this.graph.nodeSpeed / (top * scaleLen || 1);
-	} else if  (bottom < minDistance) {
-		nodeTransformation.y -= this.graph.nodeSpeed / (bottom * scaleLen || 1);
+	if (transformationtop < minDistance + this.top) {
+		nodeTransformation.y += this.graph.nodeSpeed / (transformationtop * scaleLen || 1);
+	} else if  (transformationbottom < minDistance) {
+		nodeTransformation.y -= this.graph.nodeSpeed / (transformationbottom * scaleLen || 1);
 	}
 };
 

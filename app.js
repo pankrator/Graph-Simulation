@@ -136,7 +136,7 @@ window.onload = function () {
 
 	manager = new GraphManager();
 	manager.createEmptyGraph(graph, true);
-	forceController = new ForceBasedController(graph, canvas.height, canvas.width);
+	forceController = new ForceBasedController(graph, 0, 50, canvas.height, canvas.width);
 	renderer = new Renderer(context, graph);
 	stateManager = new StateManager(graph);
 	input = new InputManager(canvas);

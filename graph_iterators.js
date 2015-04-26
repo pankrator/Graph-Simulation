@@ -94,6 +94,108 @@ DFSIterator.prototype.reset = function () {
 	}
 };
 
+var DijkstraIterator = function(graph) {
+	this.distances = {};
+	this.previousNodes = {};
+	this.graph = graph;
+	this.visited = [];
+	this.states = [];
+	this.currentState = -1;
+	this.started = false;
+};
+
+DijkstraIterator.prototype.next = function () {
+	if (!this.started) {
+		return;
+	}
+	
+	this.currentState++;
+	if (this.currentState >= this.states.length) {
+		this.currentState = this.states.length - 1;
+	}
+
+	EventBus.publish("next-state", this.graph.states, this.states[this.currentState]);
+	this.graph.states = this.states[this.currentState];
+};
+
+DijkstraIterator.prototype.previous = function () {
+	if (!this.started) {
+		return;
+	}
+
+	this.currentState--;
+
+	if(this.currentState < 0) {
+		this.currentState = 0;
+	}
+
+	this.graph.states = this.states[this.currentState];
+};
+
+DijkstraIterator.prototype.start = function (startId) {
+	if (this.started) {
+		return;
+	}
+
+	this.started = true;
+	var initialState = {};
+
+	for (var nodeId in this.graph.nodes) {
+		this.distances[nodeId] = Infinity;
+		this.previousNodes[nodeId] = undefined;
+		var node = this.graph.nodes[nodeId];
+		initialState[nodeId] = { visited: false,
+							   toBeVisited: false,
+							   distance: Infinity,
+							   parentId: undefined, };
+
+		this.visited.push(nodeId);
+	}
+
+	this.distances[startId] = 0;
+	initialState[startId].distance = 0;
+	initialState[startId].visited = true;
+	this.states.push(initialState);
+	while (this.visited.length > 0) {
+		var nodeId = _.min(this.visited, function (id) {
+			return this.distances[id];
+		}.bind(this));
+
+		_.remove(this.visited, function (id) {
+			return id == nodeId;
+		});
+
+		var node = this.graph.nodes[nodeId];
+		var state = _.cloneDeep(this.states[this.states.length - 1]);
+		state[nodeId].visited = true;
+		for (var i = 0; i < node.edges.length; i++) {
+			var edge = this.graph.edges[node.edges[i]];
+			var alt = this.distances[nodeId] + edge.weight;
+
+			if (alt < this.distances[edge.to]) {
+				state[edge.to].parentId = nodeId;
+				state[edge.to].distance = alt;
+				state[edge.to].toBeVisited = true;
+				this.distances[edge.to] = alt;
+				this.previousNodes[edge.to] = nodeId;
+			}
+		}
+
+		this.states.push(state);
+	}
+};
+
+DijkstraIterator.prototype.reset = function () {
+	this.distances = {};
+	this.previousNodes = {};
+	this.graph = graph;
+	this.visited = [];
+	this.states = [];
+	this.currentState = -1;
+	this.started = false;
+	this.graph.states = {};
+};
+
 var BFSIterator = function (graph) {
 	this.queue = [];
 	this.graph = graph;
@@ -103,18 +205,25 @@ var BFSIterator = function (graph) {
 	this.states = [];
 };
 
-BFSIterator.prototype.next = function() {
+BFSIterator.prototype.next = function () {
+	if (!this.started) {
+		return;
+	}
+	
 	this.currentState++;
 	if (this.currentState >= this.states.length) {
 		this.currentState = this.states.length - 1;
 	}
 
 	EventBus.publish("next-state", this.graph.states, this.states[this.currentState]);
-	
 	this.graph.states = this.states[this.currentState];
 };
 
-BFSIterator.prototype.previous = function() {
+BFSIterator.prototype.previous = function () {
+	if (!this.started) {
+		return;
+	}
+	
 	this.currentState--;
 
 	if(this.currentState < 0) {
@@ -164,13 +273,9 @@ BFSIterator.prototype.start = function (startId) {
 
 BFSIterator.prototype.reset = function () {
 	this.queue = [];
-	this.previousNodes = [];
-	this.nextNodes = [];
 	this.discovered = {};
-
-	var states = this.graph.states;
-	for (var nodeId in states) {
-		states[nodeId].active = false;
-		states[nodeId].visited = false;
-	}
+	this.started = false;
+	this.currentState = -1;
+	this.states = [];
+	this.graph.states = {};
 };
