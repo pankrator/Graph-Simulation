@@ -7,16 +7,18 @@ selectionState.tool = "HAND";
 var attachUIListeners = function () {
 	var BFSIteratorButton = document.getElementById("BFS");
 	var DijkstraButton = document.getElementById("Dijkstra");
+	var AStarButton = document.getElementById("AStar");
 	var saveButton = document.getElementById("save");
 	var loadButton = document.getElementById("load");
 
 	BFSIteratorButton.addEventListener("click", handleBFSIterator);
 	DijkstraButton.addEventListener("click", handleDijkstraIterator);
+	AStarButton.addEventListener("click", handleAStarIterator);
 	saveButton.addEventListener("click", handleSave);
 	loadButton.addEventListener("click", handleLoad);
 	// DFSIteratorButton.addEventListener("click", handleDFSIterator);
 
-	EventBus.subscribe("node-selected", startIterator);
+	// EventBus.subscribe("node-selected", startIterator);
 	EventBus.subscribe("node-selected", selectNodeForConnecting);
 }
 
@@ -32,6 +34,25 @@ var selectNodeForConnecting = function (nodeId) {
 	} else if (selectionState.tool == "HAND") {
 		movingNode = nodeId;
 		renderer.playPulseAnimation(nodeId);
+	} else if (selectionState.tool == "ITERATOR") {
+		firstNode = nodeId;
+
+		if (selectionState.waitForStartingNode && selectionState.waitForGoalNode) {
+			selectionState.waitForStartingNode = false;
+			selectionState.startNode = firstNode;
+			return;
+		}
+		if (!selectionState.waitForStartingNode && selectionState.waitForGoalNode
+			&& selectionState.startNode) {
+			selectionState.goalNode = firstNode;
+			selectionState.waitForGoalNode = false;
+			startIterator(selectionState.startNode, selectionState.goalNode);
+			selectionState.startNode = null;
+			selectionState.goalNode = null;
+			return;
+		}
+		
+		startIterator(firstNode);
 	}
 }
 
@@ -44,6 +65,13 @@ var handleDijkstraIterator = function () {
 var handleBFSIterator = function () {
 	var iterator = new BFSIterator(graph);
 	selectionState.tool = "ITERATOR";
+	initializeIterator(iterator);
+}
+
+var handleAStarIterator = function () {
+	var iterator = new AStarIterator(graph);
+	selectionState.tool = "ITERATOR";
+	selectionState.waitForGoalNode = true;
 	initializeIterator(iterator);
 }
 
@@ -89,9 +117,12 @@ var initializeIterator = function (iterator) {
 	selectionState.waitForStartingNode = true;
 }
 
-var startIterator = function (nodeId) {
+var startIterator = function (nodeId, secondId) {
 	if (selectionState.tool == "ITERATOR") {
-		selectionState.iterator.start(nodeId);
+		if (selectionState.waitForGoalNode) {
+			return;
+		}
+		selectionState.iterator.start(nodeId, secondId);
 		selectionState.waitForStartingNode = false;
 	}
 }

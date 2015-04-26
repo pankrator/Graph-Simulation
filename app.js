@@ -20,7 +20,7 @@ var createNode = function () {
 	EventBus.publish("add-node", nodeIndex, 
 							 	 input.mouse.x,
 							 	 input.mouse.y,
-							 	 30);
+							 	 DEFAULT_NODE_RADIUS);
 }
 
 var createNotDirectedGraph = function() {
@@ -82,7 +82,7 @@ var selectNode = function () {
 														input.mouse.y);
 	
 	if (nodeId != null) {
-		EventBus.publish("node-selected", nodeId);		
+		EventBus.publish("node-selected", nodeId);
 	}
 };
 
@@ -145,7 +145,22 @@ var detectMouseUp = function (event) {
 			} else if (selectionState.tool == "LINE" && firstNode != null) {
 				addEdge();
 			} else if (selectionState.tool == "ITERATOR" && firstNode != null) {
-				startIterator(firstNode);
+				// if (selectionState.waitForStartingNode && selectionState.waitForGoalNode) {
+				// 	selectionState.waitForStartingNode = false;
+				// 	selectionState.startNode = firstNode;
+				// 	break;
+				// }
+				// if (!selectionState.waitForStartingNode && selectionState.waitForGoalNode
+				// 	&& selectionState.startNode) {
+				// 	selectionState.goalNode = firstNode;
+				// 	selectionState.waitForGoalNode = false;
+				// 	startIterator(selectionState.startNode, selectionState.goalNode);
+				// 	selectionState.startNode = null;
+				// 	selectionState.goalNode = null;
+				// 	break;
+				// }
+
+				// startIterator(firstNode);
 			}
 			break;
 
@@ -221,20 +236,20 @@ window.onload = function () {
 
 var handleResetState = function (state) {
 	for (var id in state) {
-	var currentAnimationState = this.graph.animationStates[id];
+		var currentAnimationState = this.graph.animationStates[id];
 
-	if (state[id].visited) {
-		currentAnimationState.fillColor = VISITED_FILL_STYLE;
-		currentAnimationState.color = VISITED_OUTLINE_STYLE;
-		currentAnimationState.fill = true;
-	} else if (state[id].toBeVisited) {
-		currentAnimationState.color = TO_BE_VISITED_OUTLINE_STYLE;
-		currentAnimationState.fill = false;
-	} else {
-		currentAnimationState.color = NORMAL_STROKE_STYLE;
-		currentAnimationState.fill = false;
-		currentAnimationState.fillColor = NORMAL_FILL_STYLE;
-	}
+		if (state[id].visited) {
+			currentAnimationState.fillColor = VISITED_FILL_STYLE;
+			currentAnimationState.color = VISITED_OUTLINE_STYLE;
+			currentAnimationState.fill = true;
+		} else if (state[id].toBeVisited) {
+			currentAnimationState.color = TO_BE_VISITED_OUTLINE_STYLE;
+			currentAnimationState.fill = false;
+		} else {
+			currentAnimationState.color = NORMAL_STROKE_STYLE;
+			currentAnimationState.fill = false;
+			currentAnimationState.fillColor = NORMAL_FILL_STYLE;
+		}
 	}
 }
 
@@ -249,6 +264,21 @@ var handlePreviousState = function (previousState, currentState) {
 		} else if (currentState[id].toBeVisited) {
 			currentAnimationState.color = TO_BE_VISITED_OUTLINE_STYLE;
 			currentAnimationState.fill = false;
+		} else if (currentState[id].isOpen) {
+			currentAnimationState.color = TO_BE_VISITED_OUTLINE_STYLE;
+			currentAnimationState.fill = false;
+		} else if (currentState[id].onPath) {
+			currentAnimationState.fillColor = ON_PATH_FILL_STYLE;
+			currentAnimationState.color = ON_PATH_OUTLINE_STYLE;
+			currentAnimationState.fill = true;
+		} else if (currentState[id].isStart) {
+			currentAnimationState.fillColor = START_NODE_FILL_STYLE;
+			currentAnimationState.color = START_NODE_OUTLINE_STYLE;
+			currentAnimationState.fill = true;
+		} else if (currentState[id].isGoal) {
+			currentAnimationState.fillColor = GOAL_NODE_FILL_STYLE;
+			currentAnimationState.color = GOAL_NODE_OUTLINE_STYLE;
+			currentAnimationState.fill = true;
 		} else {
 			currentAnimationState.color = NORMAL_STROKE_STYLE;
 			currentAnimationState.fill = false;
@@ -268,6 +298,21 @@ var handleNextState = function (previousState, currentState) {
 		} else if (currentState[id].toBeVisited) {
 			currentAnimationState.color = TO_BE_VISITED_OUTLINE_STYLE;
 			currentAnimationState.fill = false;
+		} else if (currentState[id].isOpen) {
+			currentAnimationState.color = TO_BE_VISITED_OUTLINE_STYLE;
+			currentAnimationState.fill = false;
+		} else if (currentState[id].onPath) {
+			currentAnimationState.fillColor = ON_PATH_FILL_STYLE;
+			currentAnimationState.color = ON_PATH_OUTLINE_STYLE;
+			currentAnimationState.fill = true;
+		} else if (currentState[id].isStart) {
+			currentAnimationState.fillColor = START_NODE_FILL_STYLE;
+			currentAnimationState.color = START_NODE_OUTLINE_STYLE;
+			currentAnimationState.fill = true;
+		} else if (currentState[id].isGoal) {
+			currentAnimationState.fillColor = GOAL_NODE_FILL_STYLE;
+			currentAnimationState.color = GOAL_NODE_OUTLINE_STYLE;
+			currentAnimationState.fill = true;
 		} else {
 			currentAnimationState.color = NORMAL_STROKE_STYLE;
 			currentAnimationState.fill = false;
@@ -309,7 +354,7 @@ var update = function () {
 	}
 
 	if (selectionState.tool == "ITERATOR") {
-		if (selectionState.waitForStartingNode) {
+		if (selectionState.waitForStartingNode || selectionState.waitForGoalNode) {
 			renderer.renderText(input.mouse.x, input.mouse.y, "Изберете връх", "orange");
 		}
 		if (selectionState.iterator.started) {

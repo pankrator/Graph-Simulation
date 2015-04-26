@@ -306,3 +306,137 @@ BFSIterator.prototype.reset = function () {
 	
 	EventBus.publish("state-reset", states);
 };
+
+
+var AStarIterator = function (grah) {
+	this.graph = graph;
+	this.states = [];
+	this.currentState = -1;
+	this.started = false;
+
+	this.GScore = {};
+	this.FScore = {};
+	this.HScore = {};
+};
+
+AStarIterator.prototype.start = function (startId, finishId) {
+	if (this.started) {
+		return;
+	}
+	this.started = true;
+
+	var closedSet = [];
+	var openSet = [startId];
+	var cameFrom = {};
+
+	var initialState = {};
+	for (var node in this.graph.nodes) {
+		initialState[node] = { 
+			isOpen: false,
+			isClosed: false,
+			onPath: false,
+			isStart: false,
+			isGoal: false
+		};
+	}
+	initialState[startId].isStart = true;
+	initialState[finishId].isGoal = true;
+	this.states.push(initialState);
+
+	this.GScore[startId] = 0;
+	this.FScore[startId] = this.GScore[startId] + this.heuristic(startId, finishId);
+
+	while (openSet.length > 0) {
+		var state = _.cloneDeep(this.states[this.states.length - 1]);
+		var current = _.min(openSet, function (nodeId) {
+			return this.FScore[nodeId];
+		}.bind(this));
+
+		if (current == finishId) {
+			//TODO : reconstruct path
+			// this.reconstructPath(startId, finishId);
+			return;
+		}
+
+		_.remove(openSet, function (current, nodeId) {
+			return nodeId == current;
+		}.bind(this, current));//TODO
+		closedSet.push(current);
+
+		state[current].isClosed = true;
+		state[current].isOpen = false;
+
+		var edges = this.graph.nodes[current].edges;
+		for (var i = 0; i < edges.length; i++) {
+			var edge = this.graph.edges[edges[i]];
+			var neighbourId = edge.to;
+			if (closedSet.indexOf(neighbourId) > -1) {
+				continue;
+			}
+
+			var tentativeGScore = this.GScore[current] + edge.weight;
+			if (openSet.indexOf(neighbourId) == -1 ||
+				tentativeGScore < this.GScore[neighbourId]) {
+
+				cameFrom[neighbourId] = current;
+				if (neighbourId != finishId) {
+					state[neighbourId].onPath = true;					
+				}
+				this.GScore[neighbourId] = tentativeGScore;
+				this.FScore[neighbourId] = this.GScore[neighbourId] + this.heuristic(neighbourId, finishId);
+				state[neighbourId].distance = Math.ceil(this.GScore[neighbourId]);
+
+				if (openSet.indexOf(neighbourId) == -1) {
+					openSet.push(neighbourId);
+					if (neighbourId != finishId) {
+						state[neighbourId].isOpen = true;						
+					}
+				} 
+			}
+		}
+		this.states.push(state);
+	}
+};
+
+AStarIterator.prototype.next = function () {
+	if (!this.started) {
+		return;
+	}
+
+	this.currentState++;
+	if (this.currentState >= this.states.length) {
+		this.currentState = this.states.length - 1;
+	}
+
+	EventBus.publish("next-state", this.graph.states, this.states[this.currentState]);
+	this.graph.states = this.states[this.currentState];
+};
+
+AStarIterator.prototype.previous = function () {
+	if (!this.started) {
+		return;
+	}
+	
+	this.currentState--;
+
+	if(this.currentState < 0) {
+		this.currentState = 0;
+	}
+
+	EventBus.publish("previous-state", this.graph.states, this.states[this.currentState]);
+
+	this.graph.states = this.states[this.currentState];
+};
+
+AStarIterator.prototype.heuristic = function (first, second) {
+	var firstTransform = this.graph.transformations[first];
+	var secondTransform = this.graph.transformations[second];
+
+	var dir = {
+		x: secondTransform.x - firstTransform.x,
+		y: secondTransform.y - firstTransform.y
+	};
+	var len = Math.sqrt(dir.x * dir.x + dir.y * dir.y);
+
+	return len;
+}

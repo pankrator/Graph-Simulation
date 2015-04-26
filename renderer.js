@@ -186,7 +186,7 @@ Renderer.prototype.playPulseAnimation = function (nodeId) {
 		}
 
 		if (!animationState.pulsePlaying) {
-			transform.radius = 30;
+			transform.radius = DEFAULT_NODE_RADIUS;
 			animationState.fill = prevAnimationState.fill;
 		}
 
