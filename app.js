@@ -69,7 +69,7 @@ var addEdge = function () {
 						  graph.transformations[secondNode].y,
 						  "blue", 300,
 		function (manager, graph, firstNode, secondNode) {
-			manager.addEdge(graph, firstNode, secondNode, 0);
+			manager.addEdge(graph, firstNode, secondNode, 1);
 			EventBus.publish("add-edge");
 		}.bind(this, manager, graph, firstNode, secondNode));
 	}

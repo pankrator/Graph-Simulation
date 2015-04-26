@@ -16,9 +16,9 @@ var PROGRESS_BAR_FILLING = "blue";
 var PROGRESS_BAR_OUTLINE = "black";
 
 var DISTANCE_FONT_COLOR = "orange";
-var LEVEL_FONT_COLOR = "maroon";
+var LEVEL_FONT_COLOR = "orange";
 
-var DEFAULT_FONT = "20px Arial";
+var DEFAULT_FONT = "bold 20px Arial";
 
 var LINE_WIDTH = 5;
 var ARROW_LENGTH = 20;

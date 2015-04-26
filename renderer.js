@@ -26,22 +26,23 @@ Renderer.prototype.renderNodes = function () {
 		
 		var state = this.graph.states[id];
 
-		if (state.level !== undefined) {
-			this.renderText(transform.x, transform.y - transform.radius - 10,
-							state.level + " стъпки", LEVEL_FONT_COLOR);
-		}
-
-		if (state.distance) {
-			this.renderText(transform.x, transform.y - transform.radius - 10,
-							state.distance != Infinity ? (state.distance + " дистанция") :
-							"недостижим", DISTANCE_FONT_COLOR);
-		}
 
 		this.renderCircle(transform.x, transform.y,
 						  transform.radius, 
 						  animationState.color,
 						  animationState.fill,
 						  animationState.fillColor);
+
+		if (state.level || state.level == 0) {
+			this.renderText(transform.x, transform.y,
+							state.level, LEVEL_FONT_COLOR);
+		}
+
+		if (state.distance) {
+			this.renderText(transform.x, transform.y,
+							state.distance != Infinity ? (state.distance) :
+							"∞", DISTANCE_FONT_COLOR);
+		}
 
 		this.renderEdges(node.edges);
 	}

@@ -301,6 +301,7 @@ BFSIterator.prototype.reset = function () {
 		states[nodeId].active = false;
 		states[nodeId].visited = false;
 		states[nodeId].toBeVisited = false;
+		states[nodeId].level = null;
 	}
 	
 	EventBus.publish("state-reset", states);
