@@ -21,4 +21,4 @@ var LEVEL_FONT_COLOR = "orange";
 var DEFAULT_FONT = "bold 20px Arial";
 
 var LINE_WIDTH = 5;
-var ARROW_LENGTH = 20;
+var ARROW_LENGTH = 10;

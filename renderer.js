@@ -261,6 +261,13 @@ Renderer.prototype.renderProgressBar = function (x, y, width, height, filledAmou
 	var filledRatio = (filledAmount / maximumAmount);
 	this.context.rect(x, y, width * filledRatio, height);
 	this.context.fill();
+
+	var offset = 0;
+	var stepX = width / maximumAmount;
+	for (var i = 0; i < maximumAmount; i++) {
+		this.renderLine({x: x + offset, y: y}, {x: x +offset + 5, y: y + height}, "black");
+		offset += stepX;
+	}
 }
 
 Renderer.prototype.render = function () {
