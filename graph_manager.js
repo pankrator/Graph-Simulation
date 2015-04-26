@@ -135,8 +135,8 @@ GraphManager.prototype.generateRandomGraph = function(graph, directed, verticesC
 	for (var e = 1; e <= edgesCount; e++) {
 		var p = Math.random();
 		if (p < probability) {
-			var firstNodeId = Math.ceil(verticesCount / e);
-			var secondNodeId = e % verticesCount + 1;
+			var firstNodeId = Math.ceil(verticesCount / Math.ceil(p *e));
+			var secondNodeId = (Math.ceil(p *e) % verticesCount) + 1;
 			this.addEdge(graph, firstNodeId, secondNodeId, ~~(p * 100) + 1); // Magic
 			EventBus.publish("add-edge");
 		}

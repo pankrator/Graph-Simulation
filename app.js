@@ -31,12 +31,12 @@ var createDirectedGraph = function() {
 }
 
 var generateNotDirectedGraph = function() {
-	manager.generateRandomGraph(graph, false, 30, 50, 0.7);
+	manager.generateRandomGraph(graph, false, 15, 50, 0.6);
 	graph.nodeSpeed = 60;
 }
 
 var generateDirectedGraph = function() {
-	manager.generateRandomGraph(graph, true, 30, 50, 0.7);
+	manager.generateRandomGraph(graph, true, 15, 50, 0.6);
 	graph.nodeSpeed = 60;
 }
 
@@ -68,7 +68,7 @@ var addEdge = function () {
 						  graph.transformations[secondNode].y,
 						  "blue", 300,
 		function (manager, graph, firstNode, secondNode) {
-			manager.addEdge(graph, firstNode, secondNode, 10);
+			manager.addEdge(graph, firstNode, secondNode, 0);
 			EventBus.publish("add-edge");
 		}.bind(this, manager, graph, firstNode, secondNode));
 	}
