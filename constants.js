@@ -11,6 +11,13 @@ var EDGE_WEIGHT_FILL_STYLE = "blue";
 
 var ITERATION_EDGE_COLORING = "orange";
 
+var PROGRESS_BAR_BACKGROUND = "yellow";
+var PROGRESS_BAR_FILLING = "blue";
+var PROGRESS_BAR_OUTLINE = "black";
+
+var DISTANCE_FONT_COLOR = "orange";
+var LEVEL_FONT_COLOR = "maroon";
+
 var DEFAULT_FONT = "20px Arial";
 
 var LINE_WIDTH = 5;

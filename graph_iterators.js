@@ -129,6 +129,8 @@ DijkstraIterator.prototype.previous = function () {
 		this.currentState = 0;
 	}
 
+	EventBus.publish("previous-state", this.graph.states, this.states[this.currentState]);
+
 	this.graph.states = this.states[this.currentState];
 };
 
@@ -167,7 +169,9 @@ DijkstraIterator.prototype.start = function (startId) {
 
 		var node = this.graph.nodes[nodeId];
 		var state = _.cloneDeep(this.states[this.states.length - 1]);
+
 		state[nodeId].visited = true;
+
 		for (var i = 0; i < node.edges.length; i++) {
 			var edge = this.graph.edges[node.edges[i]];
 			var alt = this.distances[nodeId] + edge.weight;
@@ -181,7 +185,9 @@ DijkstraIterator.prototype.start = function (startId) {
 			}
 		}
 
-		this.states.push(state);
+		if (state[nodeId].distance != Infinity) {
+			this.states.push(state);			
+		}
 	}
 };
 

@@ -25,26 +25,16 @@ Renderer.prototype.renderNodes = function () {
 		var animationState = this.graph.animationStates[id];
 		
 		var state = this.graph.states[id];
-		// if (state) {
-		// 	if (state.visited) {
-		// 		animationState.color = VISITED_FILL_STYLE;
-		// 		animationState.fill = true;
-		// 	} else if (state.toBeVisited) {
-		// 		animationState.color = TO_BE_VISITED_FILL_STYLE;
-		// 		animationState.fill = true;
-		// 	} else {
-		// 		animationState.color = NORMAL_STROKE_STYLE;
-		// 		animationState.fill = false;
-		// 		animationState.fillColor = NORMAL_FILL_STYLE;
-		// 	}
-		// }
 
 		if (state.level !== undefined) {
-			context.font = "20px Arial";
-			context.fillStyle = EDGE_WEIGHT_FILL_STYLE;
-			context.fillText(state.level, 
-							 transform.x,
-							 transform.y - transform.radius - 10);
+			this.renderText(transform.x, transform.y - transform.radius - 10,
+							state.level + " стъпки", LEVEL_FONT_COLOR);
+		}
+
+		if (state.distance) {
+			this.renderText(transform.x, transform.y - transform.radius - 10,
+							state.distance != Infinity ? (state.distance + " дистанция") :
+							"недостижим", DISTANCE_FONT_COLOR);
 		}
 
 		this.renderCircle(transform.x, transform.y,
@@ -257,8 +247,8 @@ Renderer.prototype.renderProgressBar = function (x, y, width, height, filledAmou
 	this.context.beginPath();
 
 	//Outline rectangle
-	this.context.fillStyle = "gray";
-	this.context.strokeStyle = "black";
+	this.context.fillStyle = PROGRESS_BAR_BACKGROUND;
+	this.context.strokeStyle = PROGRESS_BAR_OUTLINE;
 
 	this.context.rect(x, y, width, height);
 	this.context.fill();
@@ -266,7 +256,7 @@ Renderer.prototype.renderProgressBar = function (x, y, width, height, filledAmou
 
 	//Filling rectangle
 	this.context.beginPath();
-	this.context.fillStyle = "green";
+	this.context.fillStyle = PROGRESS_BAR_FILLING;
 	var filledRatio = (filledAmount / maximumAmount);
 	this.context.rect(x, y, width * filledRatio, height);
 	this.context.fill();

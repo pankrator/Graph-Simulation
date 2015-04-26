@@ -5,7 +5,7 @@ var GraphData = function () {};
 
 var firstNode = null;
 
-var leftPannel = new ButtonGroup();
+var leftPanel = new ButtonGroup();
 
 var graph = new GraphData();
 var input;
@@ -88,6 +88,16 @@ var selectNode = function () {
 var showEdgeChangeDialog = function (edge) {
 	var newEdgeSize = prompt("Tell me edge size", edge.weight);
 	if (newEdgeSize) {
+		if (!graph.directed) {
+			var node = graph.nodes[edge.to];
+			var index = _.findIndex(node.edges, function (edgeId) {
+				return graph.edges[edgeId].to == edge.from;	
+			});
+			var edgeId = node.edges[index];
+
+			graph.edges[edgeId].weight = parseInt(newEdgeSize);			
+		}
+
 		edge.weight = parseInt(newEdgeSize);
 	}
 };
@@ -174,12 +184,12 @@ window.onload = function () {
 	EventBus.subscribe("next-state", handleNextState);
 	EventBus.subscribe("previous-state", handlePreviousState);
 
-	var handButton = leftPannel.addButton(document.getElementById("hand_icon"));
-	var lineButton = leftPannel.addButton(document.getElementById("line"));
+	var handButton = leftPanel.addButton(document.getElementById("hand_icon"));
+	var lineButton = leftPanel.addButton(document.getElementById("line"));
 
-	leftPannel.select(handButton);
+	leftPanel.select(handButton);
 
-	leftPannel.addListener(handButton, function (selectionState) {
+	leftPanel.addListener(handButton, function (selectionState) {
 		if (selectionState.iterator) {
 			selectionState.iterator.reset();
 			selectionState.iterator = null;
@@ -187,7 +197,7 @@ window.onload = function () {
 		selectionState.tool = "HAND";
 	}.bind(undefined, selectionState));
 
-	leftPannel.addListener(lineButton, function (selectionState) {
+	leftPanel.addListener(lineButton, function (selectionState) {
 		if (selectionState.iterator) {
 			selectionState.iterator.reset();
 			selectionState.iterator = null;
@@ -266,7 +276,7 @@ var handleNextState = function (previousState, currentState) {
 							  parentTransformation.y,
 							  currentTransformation.x,
 							  currentTransformation.y,
-							  ITERATION_EDGE_COLORING, 500);
+							  ITERATION_EDGE_COLORING, 1000);
 		}
 	}
 };
@@ -292,7 +302,7 @@ var update = function () {
 		}
 		if (selectionState.iterator.started) {
 			renderer.renderText(350, 20, "Използвайте стрелките, за да навигирате алгоритъма", "blue");
-			renderer.renderProgressBar(350, 50, 150, 20, selectionState.iterator.currentState + 1,
+			renderer.renderProgressBar(350, 50, 300, 30, selectionState.iterator.currentState + 1,
 										  selectionState.iterator.states.length);
 		}
 	}

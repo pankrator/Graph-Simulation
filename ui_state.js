@@ -6,9 +6,10 @@ selectionState.tool = "HAND";
 
 var attachUIListeners = function () {
 	var BFSIteratorButton = document.getElementById("BFS");
-	var DFSIteratorButton = document.getElementById("DFS");
+	var DijkstraButton = document.getElementById("Dijkstra");
 
 	BFSIteratorButton.addEventListener("click", handleBFSIterator);
+	DijkstraButton.addEventListener("click", handleDijkstraIterator);
 	// DFSIteratorButton.addEventListener("click", handleDFSIterator);
 
 	EventBus.subscribe("node-selected", startIterator);
@@ -29,17 +30,23 @@ var selectNodeForConnecting = function (nodeId) {
 	}
 }
 
-var handleBFSIterator = function () {
-	var iterator = new BFSIterator(graph);
-	selectionState.iterator = iterator;
+var handleDijkstraIterator = function () {
+	var iterator = new DijkstraIterator(graph);
 	selectionState.tool = "ITERATOR";
-	selectionState.waitForStartingNode = true;
+	initializeIterator(iterator);
 }
 
-var handleDFSIterator = function () {
-	var iterator = new DFSIterator(graph);
-	selectionState.iterator = iterator;
+var handleBFSIterator = function () {
+	var iterator = new BFSIterator(graph);
 	selectionState.tool = "ITERATOR";
+	initializeIterator(iterator);
+}
+
+var initializeIterator = function (iterator) {
+	if (selectionState.iterator) {
+		selectionState.iterator.reset();
+	}
+	selectionState.iterator = iterator;
 	selectionState.waitForStartingNode = true;
 }
 
