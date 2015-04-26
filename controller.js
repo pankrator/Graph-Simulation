@@ -1,9 +1,11 @@
 var NODE_SPEED = 20;
 
-var ForceBasedController = function (graph) {
+var ForceBasedController = function (graph, height, width) {
 	this.graph = graph;
 	this.graph.transformations = {};
 	this.graph.nodeSpeed = NODE_SPEED;
+	this.height = height;
+	this.width = width;
 
 	EventBus.subscribe("add-node", this.addNode.bind(this));
 	EventBus.subscribe("add-edge", this.addEdge.bind(this));
@@ -155,9 +157,34 @@ ForceBasedController.prototype.repelFromUnrelated = function(nodeId) {
 	}
 }
 
+ForceBasedController.prototype.repelFromDimensions = function(nodeId) {
+	var nodeTransformation = this.graph.transformations[nodeId];
+
+	var left = nodeTransformation.x;
+	var right = this.width - nodeTransformation.x;
+	var top = nodeTransformation.y;
+	var bottom = this.height - nodeTransformation.y;
+
+	var minDistance = nodeTransformation.radius * 4 + 50;
+	var scaleLen = 1/8;
+
+	if (left < minDistance) {
+		nodeTransformation.x += this.graph.nodeSpeed / (left * scaleLen || 1);
+	} else if (right < minDistance) {
+		nodeTransformation.x -= this.graph.nodeSpeed / (right * scaleLen || 1);
+	} 
+
+	if (top < minDistance) {
+		nodeTransformation.y += this.graph.nodeSpeed / (top * scaleLen || 1);
+	} else if  (bottom < minDistance) {
+		nodeTransformation.y -= this.graph.nodeSpeed / (bottom * scaleLen || 1);
+	}
+};
+
 ForceBasedController.prototype.action = function (nodeId) {
 	this.attractToNeighbours(this.graph.nodes[nodeId]);
 	this.repelFromUnrelated(nodeId);
+	this.repelFromDimensions(nodeId);
 }
 
 ForceBasedController.prototype.update = function () {

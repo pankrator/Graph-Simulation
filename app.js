@@ -23,25 +23,34 @@ var createNode = function () {
 }
 
 var createNotDirectedGraph = function() {
-	alert("lqlq");
-	graph = manager.createEmptyGraph(false);
+	manager.createEmptyGraph(graph, false);
 }
 
 var createDirectedGraph = function() {
-	graph = manager.createEmptyGraph(true);
+	manager.createEmptyGraph(graph, true);
+}
+
+var generateNotDirectedGraph = function() {
+	manager.generateRandomGraph(graph, false, 30, 50, 0.7);
+	graph.nodeSpeed = 60;
+}
+
+var generateDirectedGraph = function() {
+	manager.generateRandomGraph(graph, true, 30, 50, 0.7);
+	graph.nodeSpeed = 60;
 }
 
 //TODO change functions
 document.getElementById("not_directed_graph").addEventListener("click", createNotDirectedGraph);
 document.getElementById("directed_graph").addEventListener("click", createDirectedGraph);
-document.getElementById("generate_not_directed_graph").addEventListener("click", createNotDirectedGraph);
-document.getElementById("generate_directed_graph").addEventListener("click", createDirectedGraph);
+document.getElementById("generate_not_directed_graph").addEventListener("click", generateNotDirectedGraph);
+document.getElementById("generate_directed_graph").addEventListener("click", generateDirectedGraph);
 // document.getElementById("save").addEventListener("click", func);
 
 var createNode = function () {
 	if (firstNode == null) {
 		var nodeIndex = manager.addNode(graph);
-		EventBus.publish("add-node", nodeIndex, 
+		EventBus.publish("add-node", nodeIndex,
 								 	 input.mouse.x,
 								 	 input.mouse.y,
 								 	 30);
@@ -127,7 +136,7 @@ window.onload = function () {
 
 	manager = new GraphManager();
 	manager.createEmptyGraph(graph, true);
-	forceController = new ForceBasedController(graph);
+	forceController = new ForceBasedController(graph, canvas.height, canvas.width);
 	renderer = new Renderer(context, graph);
 	stateManager = new StateManager(graph);
 	input = new InputManager(canvas);

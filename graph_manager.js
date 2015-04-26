@@ -23,6 +23,8 @@ GraphManager.prototype.createEmptyGraph = function (graph, directed) {
 	graph.directed = directed;
 	graph.nodes = {};
 	graph.edges = {};
+	this.nodeCounter = 0;
+	this.edgeCounter = 0;
 };
 
 GraphManager.prototype.addNode = function (graph) {
@@ -117,4 +119,26 @@ GraphManager.prototype.removeNode = function(graph, nodeId) {
 	}
 
 	delete graph.nodes[nodeId];
+};
+
+GraphManager.prototype.generateRandomGraph = function(graph, directed, verticesCount, edgesCount, probability) {
+	this.createEmptyGraph(graph, directed);
+
+	for (var v = 0; v < verticesCount; v++) {
+		var id = this.addNode(graph);
+		EventBus.publish("add-node", id, 
+							 	 	 500,
+							 	 	 500,
+							 	 	 30);
+	}
+
+	for (var e = 1; e <= edgesCount; e++) {
+		var p = Math.random();
+		if (p < probability) {
+			var firstNodeId = Math.ceil(verticesCount / e);
+			var secondNodeId = e % verticesCount + 1;
+			this.addEdge(graph, firstNodeId, secondNodeId, ~~(p * 100) + 1); // Magic
+			EventBus.publish("add-edge");
+		}
+	}
 };
