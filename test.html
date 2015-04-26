@@ -53,7 +53,6 @@
 				<div class="dialog-inner">
 					<div><a href="javascript: window.close();"><button class="action" data-dialog-close id="not_directed_graph">Нов неориентиран граф</button></a></div>
 					<div><button class="action" data-dialog-close id="directed_graph">Нов ориентиран граф</button></div>
-					<div><button class="action" data-dialog-close>Close</button></div>
 				</div>
 			</div>
 		</div>
@@ -67,11 +66,8 @@
 					</svg>
 				</div>
 				<div class="dialog-inner">
-					<div><button class="action" data-dialog-close>BFS</button></div>
-					<div><button class="action" data-dialog-close>DFS</button></div>
-					<div><button class="action" data-dialog-close>Something interesting</button></div>
-					<div><button class="action" data-dialog-close>My Alg</button></div>
-					<div><button class="action" data-dialog-close>Close</button></div>
+					<div><button id="BFS" data-dialog-close class="action">BFS</button></div>
+					<div><button id="DFS" data-dialog-close class="action">DFS</button></div>
 				</div>
 			</div>
 		</div>
@@ -87,7 +83,6 @@
 				<div class="dialog-inner">
 					<div><button class="action" id="generate_not_directed_graph" data-dialog-close>Генерирай неориентиран граф</button></div>
 					<div><button class="action" id="generate_directed_graph" data-dialog-close>Генерирай ориентиран граф</button></div>
-					<div><button class="action" data-dialog-close>Close</button></div>
 				</div>
 			</div>
 		</div>
@@ -138,8 +133,10 @@
 		</script>
 		<script src="topMenu/js/classie.js"></script>
 		<script src="topMenu/js/main.js"></script>
+		<script src="ui_state.js"></script>
 		<script src="button_group.js"></script>
 		<script src="lodash.js"></script>
+		<script src="constants.js"></script>
 		<script src="event_bus.js"></script>
 		<script src="state_manager.js"></script>
 		<script src="controller.js"></script>

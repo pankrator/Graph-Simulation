@@ -8,15 +8,16 @@ function MouseData() {
 }
 
 var InputManager = function (canvas) {
+	this.canvas = canvas;
 	this.mouse = new MouseData();
 	this.mouseDownCallbacks = [];
 	this.mouseUpCallbacks = [];
 	this.canvasBoundaries = canvas.getBoundingClientRect();
 
-	canvas.addEventListener("mousemove", this.mouseMove.bind(this));
-	canvas.addEventListener("mousedown", this.mouseDown.bind(this));
-	canvas.addEventListener("mouseup", this.mouseUp.bind(this));
-	canvas.addEventListener("contextmenu", this.contextMenuListener.bind(this));
+	window.addEventListener("mousemove", this.mouseMove.bind(this));
+	window.addEventListener("mousedown", this.mouseDown.bind(this));
+	window.addEventListener("mouseup", this.mouseUp.bind(this));
+	window.addEventListener("contextmenu", this.contextMenuListener.bind(this));
 }
 
 InputManager.prototype.detectMouseDown = function (callback) {
@@ -53,7 +54,7 @@ InputManager.prototype.mouseUp = function (event) {
     }
 
     for (var i = 0; i < this.mouseUpCallbacks.length; i++) {
-    	this.mouseUpCallbacks[i](event.button);
+    	this.mouseUpCallbacks[i](event);
     }
 }
 
@@ -71,7 +72,7 @@ InputManager.prototype.mouseDown = function (event) {
     }
 
     for (var i = 0; i < this.mouseDownCallbacks.length; i++) {
-    	this.mouseDownCallbacks[i](event.button);
+    	this.mouseDownCallbacks[i](event);
     }
 }
 

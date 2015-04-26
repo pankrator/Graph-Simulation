@@ -193,7 +193,17 @@ DijkstraIterator.prototype.reset = function () {
 	this.states = [];
 	this.currentState = -1;
 	this.started = false;
-	this.graph.states = {};
+
+	var states = this.graph.states;
+	for (var nodeId in states) {
+		states[nodeId].active = false;
+		states[nodeId].visited = false;
+		states[nodeId].toBeVisited = false;
+		states[nodeId].parentId = null;
+		states[nodeId].distance = null;
+	}
+	
+	EventBus.publish("state-reset", states);
 };
 
 var BFSIterator = function (graph) {
@@ -209,7 +219,7 @@ BFSIterator.prototype.next = function () {
 	if (!this.started) {
 		return;
 	}
-	
+
 	this.currentState++;
 	if (this.currentState >= this.states.length) {
 		this.currentState = this.states.length - 1;
@@ -229,6 +239,8 @@ BFSIterator.prototype.previous = function () {
 	if(this.currentState < 0) {
 		this.currentState = 0;
 	}
+
+	EventBus.publish("previous-state", this.graph.states, this.states[this.currentState]);
 
 	this.graph.states = this.states[this.currentState];
 };
@@ -277,5 +289,13 @@ BFSIterator.prototype.reset = function () {
 	this.started = false;
 	this.currentState = -1;
 	this.states = [];
-	this.graph.states = {};
+
+	var states = this.graph.states;
+	for (var nodeId in states) {
+		states[nodeId].active = false;
+		states[nodeId].visited = false;
+		states[nodeId].toBeVisited = false;
+	}
+	
+	EventBus.publish("state-reset", states);
 };

@@ -1,15 +1,3 @@
-var VISITED_FILL_STYLE = "black";
-var TO_BE_VISITED_FILL_STYLE = "aqua";
-var NORMAL_STROKE_STYLE = "black";
-var NORMAL_FILL_STYLE = "blue";
-var EDGE_STROKE_STYLE = "red";
-var EDGE_WEIGHT_FILL_STYLE = "blue";
-
-var DEFAULT_FONT = "20px Arial";
-
-var LINE_WIDTH = 5;
-var ARROW_LENGTH = 20;
-
 var Renderer = function (context, graph) {
 	this.graph = graph;
 	this.graph.animationStates = {};
@@ -28,7 +16,7 @@ Renderer.prototype.addNode = function (nodeId) {
 		fill: false,
 		fillColor: NORMAL_FILL_STYLE
 	};
-}
+};
 
 Renderer.prototype.renderNodes = function () {
 	for (var id in this.graph.nodes) {
@@ -37,19 +25,19 @@ Renderer.prototype.renderNodes = function () {
 		var animationState = this.graph.animationStates[id];
 		
 		var state = this.graph.states[id];
-		if (state) {
-			if (state.visited) {
-				animationState.color = VISITED_FILL_STYLE;
-				animationState.fill = true;
-			} else if (state.toBeVisited) {
-				animationState.color = TO_BE_VISITED_FILL_STYLE;
-				animationState.fill = true;
-			} else {
-				animationState.color = NORMAL_STROKE_STYLE;
-				animationState.fill = false;
-				animationState.fillColor = NORMAL_FILL_STYLE;
-			}
-		}
+		// if (state) {
+		// 	if (state.visited) {
+		// 		animationState.color = VISITED_FILL_STYLE;
+		// 		animationState.fill = true;
+		// 	} else if (state.toBeVisited) {
+		// 		animationState.color = TO_BE_VISITED_FILL_STYLE;
+		// 		animationState.fill = true;
+		// 	} else {
+		// 		animationState.color = NORMAL_STROKE_STYLE;
+		// 		animationState.fill = false;
+		// 		animationState.fillColor = NORMAL_FILL_STYLE;
+		// 	}
+		// }
 
 		if (state.level !== undefined) {
 			context.font = "20px Arial";
@@ -134,6 +122,12 @@ Renderer.prototype.renderEdges = function(edges) {
 	}
 };
 
+Renderer.prototype.renderText = function (x, y, text, color) {
+	this.context.font = DEFAULT_FONT;
+	this.context.fillStyle = color  ? color : "blue";
+	this.context.fillText(text, x, y);
+}
+
 Renderer.prototype.renderCircle = function (x, y, radius,
 											outlineColor,
 											isFilled,
@@ -209,8 +203,8 @@ Renderer.prototype.playPulseAnimation = function (nodeId) {
 	}.bind(this, transform, animationState, prevAnimationState));
 };
 
-Renderer.prototype.lerpLine = function (fromX, fromY, toX, toY, color, callback) {
-	var animationTime = 1000 / 60;
+Renderer.prototype.lerpLine = function (fromX, fromY, toX, toY, color, finishTime, callback) {
+	var animationTime = finishTime / 60;
 	var state = {
 		from: {
 			x: fromX,
@@ -257,6 +251,25 @@ Renderer.prototype.lerpLine = function (fromX, fromY, toX, toY, color, callback)
 
 		return true;
 	}.bind(this, state, callback));
+}
+
+Renderer.prototype.renderProgressBar = function (x, y, width, height, filledAmount, maximumAmount) {
+	this.context.beginPath();
+
+	//Outline rectangle
+	this.context.fillStyle = "gray";
+	this.context.strokeStyle = "black";
+
+	this.context.rect(x, y, width, height);
+	this.context.fill();
+	this.context.stroke();
+
+	//Filling rectangle
+	this.context.beginPath();
+	this.context.fillStyle = "green";
+	var filledRatio = (filledAmount / maximumAmount);
+	this.context.rect(x, y, width * filledRatio, height);
+	this.context.fill();
 }
 
 Renderer.prototype.render = function () {
