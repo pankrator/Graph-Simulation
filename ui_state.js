@@ -7,9 +7,13 @@ selectionState.tool = "HAND";
 var attachUIListeners = function () {
 	var BFSIteratorButton = document.getElementById("BFS");
 	var DijkstraButton = document.getElementById("Dijkstra");
+	var saveButton = document.getElementById("save");
+	var loadButton = document.getElementById("load");
 
 	BFSIteratorButton.addEventListener("click", handleBFSIterator);
 	DijkstraButton.addEventListener("click", handleDijkstraIterator);
+	saveButton.addEventListener("click", handleSave);
+	loadButton.addEventListener("click", handleLoad);
 	// DFSIteratorButton.addEventListener("click", handleDFSIterator);
 
 	EventBus.subscribe("node-selected", startIterator);
@@ -41,6 +45,40 @@ var handleBFSIterator = function () {
 	var iterator = new BFSIterator(graph);
 	selectionState.tool = "ITERATOR";
 	initializeIterator(iterator);
+}
+
+var handleLoad = function () {
+	var name = prompt("Изберете име на граф");
+
+	$.ajax({
+		method: "GET",
+		url: "http://localhost:8080/load",
+		dataType: "json",
+		data: {
+			name: name,
+		},
+		error: function (err) {
+			console.log(err);
+		}
+	}).done(function(data) {
+		manager.setGraph(graph, data);
+	});
+}
+
+var handleSave = function () {
+	var name = prompt("Изберете име на графа");
+
+	$.ajax({
+		method: "POST",
+		url: "http://localhost:8080/save",
+		contentType: "text/json",
+		data: JSON.stringify({
+			name: name,
+			graph: graph,
+			edgeCounter: manager.edgeCounter,
+			nodeCounter: manager.nodeCounter
+		})
+	});
 }
 
 var initializeIterator = function (iterator) {

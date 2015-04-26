@@ -66,3 +66,15 @@ body {
 .icons:last-of-type {
     border-bottom:none;
 }
+
+.arrow {
+	width:64px;
+	height:64px;
+	position:absolute;
+	top:30px;
+	left:300px;
+}
+
+.right {
+	margin-left: 300px;
+}

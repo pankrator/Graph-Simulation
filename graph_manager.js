@@ -19,6 +19,27 @@ var GraphManager = function () {
 	this.edgeCounter = 0;
 };
 
+GraphManager.prototype.setGraph = function (graph, newData) {
+	this.edgeCounter = parseInt(newData.edges);
+	this.nodeCounter = parseInt(newData.nodes);
+
+	var newGraph = newData.graph;
+	for (var key in graph) {
+		graph[key] = {};
+		graph[key] = newGraph[key];
+
+		// graph[key] = {};
+		// for (var id in newGraph[key]) {
+		// 	graph[key][id + 1] = newGraph[key][id];
+		// }
+
+	};
+	graph.states = {};
+	for (var id in graph.nodes) {
+		graph.states[id] = {};
+	}
+}
+
 GraphManager.prototype.createEmptyGraph = function (graph, directed) {
 	graph.directed = directed;
 	graph.nodes = {};
@@ -28,7 +49,7 @@ GraphManager.prototype.createEmptyGraph = function (graph, directed) {
 };
 
 GraphManager.prototype.addNode = function (graph) {
-	graph.nodes[++this.nodeCounter] = {
+	graph.nodes[Number(++this.nodeCounter).toString()] = {
 		id: this.nodeCounter,
 		edges: []
 	};
@@ -92,7 +113,7 @@ GraphManager.prototype.areConnected = function (graph, firstId, secondId) {
 GraphManager.prototype.createEdge = function (first, second, weight) {
 
 	return {
-		id: ++this.edgeCounter,
+		id: Number(++this.edgeCounter).toString(),
 		weight: weight != undefined ? weight : 0,
 		from: first,
 		to: second
