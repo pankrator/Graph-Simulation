@@ -245,6 +245,21 @@ var handleResetState = function (state) {
 		} else if (state[id].toBeVisited) {
 			currentAnimationState.color = TO_BE_VISITED_OUTLINE_STYLE;
 			currentAnimationState.fill = false;
+		} else if (state[id].isOpen) {
+			currentAnimationState.color = TO_BE_VISITED_OUTLINE_STYLE;
+			currentAnimationState.fill = false;
+		} else if (state[id].onPath) {
+			currentAnimationState.fillColor = ON_PATH_FILL_STYLE;
+			currentAnimationState.color = ON_PATH_OUTLINE_STYLE;
+			currentAnimationState.fill = true;
+		} else if (state[id].isStart) {
+			currentAnimationState.fillColor = START_NODE_FILL_STYLE;
+			currentAnimationState.color = START_NODE_OUTLINE_STYLE;
+			currentAnimationState.fill = true;
+		} else if (state[id].isGoal) {
+			currentAnimationState.fillColor = GOAL_NODE_FILL_STYLE;
+			currentAnimationState.color = GOAL_NODE_OUTLINE_STYLE;
+			currentAnimationState.fill = true;
 		} else {
 			currentAnimationState.color = NORMAL_STROKE_STYLE;
 			currentAnimationState.fill = false;

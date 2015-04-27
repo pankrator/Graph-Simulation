@@ -440,3 +440,29 @@ AStarIterator.prototype.heuristic = function (first, second) {
 
 	return len;
 }
+
+AStarIterator.prototype.reset = function () {
+	this.states = [];
+	this.currentState = -1;
+	this.started = false;
+
+	this.GScore = {};
+	this.FScore = {};
+	this.HScore = {};
+
+	var states = this.graph.states;
+	for (var nodeId in states) {
+		states[nodeId].onPath = false;
+		states[nodeId].isClosed = false;
+		states[nodeId].isOpen = false;
+		states[nodeId].isGoal = false;
+		states[nodeId].isStart = false;
+		states[nodeId].active = false;
+		states[nodeId].visited = false;
+		states[nodeId].toBeVisited = false;
+		states[nodeId].parentId = null;
+		states[nodeId].distance = null;
+	}
+	
+	EventBus.publish("state-reset", states);
+}

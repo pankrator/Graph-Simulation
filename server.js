@@ -15,6 +15,7 @@ var graphs = {
     "BFS": "BFSGraph",
     "Dijkstra": "DijkstraGraph",
     "Sample": "SampleGraph.json",
+    "AStar": "AStar.json"
 };
 
 for (var name in graphs) {
