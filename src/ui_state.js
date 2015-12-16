@@ -27,7 +27,6 @@ var selectNodeForConnecting = function (nodeId) {
 		return;
 	}
 
-
 	if (selectionState.tool == "LINE") {
 		firstNode = nodeId;
 		renderer.playPulseAnimation(nodeId);
