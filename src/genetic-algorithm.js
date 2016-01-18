@@ -3,6 +3,7 @@ var ELITISM_OFFSET = 1;
 
 var Population = function () {
 	this.individuals = [];
+	this.bestIndividual = null;
 }
 
 Population.prototype.addIndividual = function (individual) {
@@ -23,18 +24,22 @@ Population.generateRandomGraph = function (graph) {
 
 Population.prototype.getBestIndividual = function () {
 	// this.evaluateIndividuals();
-	this.individuals.sort(function (a, b) {
-		return a.intersections - b.intersections;
-	});
+	// this.individuals.sort(function (a, b) {
+	// 	return a.intersections - b.intersections;
+	// });
 
-	return this.individuals[0];
+	// return this.individuals[0];
+
+	return this.bestIndividual;
 }
 
 Population.prototype.evolvePopulation = function () {
-	// this.evaluateIndividuals();
+	this.evaluateIndividuals();
 	this.individuals.sort(function (a, b) {
 		return a.intersections - b.intersections;
 	});
+
+	this.bestIndividual = this.individuals[0];
 
 	for (var i = KEEP_OFFSET; i < this.individuals.length; i++) {
 		var firstParentIndex = Math.floor(Math.random() * (this.individuals.length - 1) + 1);
@@ -89,12 +94,56 @@ Population.prototype.mutate = function (individual) {
 Population.prototype.evaluateIndividuals = function () {
 	for (var i = 0; i < this.individuals.length; i++) {
 		this.countIntersections(this.individuals[i]);
-
 	}
 }
 
 Population.prototype.countIntersections = function (individual) {
+	individual.intersections = 0;
 	var transformations = individual.transformations;
-	
-	for ()
+	var edges = _.values(individual.edges);
+	// console.log(edges);
+	for (var i = 0; i < edges.length - 1; i++) {
+		var v1 = edges[i].from;
+		var v2 = edges[i].to;
+		var k = i;
+		var edge2 = edges[k+1];
+		var edgeNotFound = false;
+		while(edge2.from == v1 || edge2.from == v2 || edge2.to == v1 || edge2.to == v2) {
+			edge2 = edges[++k];
+			if (k > edges.length - 1) {
+				edgeNotFound = true;
+				break;
+			}
+		}
+
+		if (edgeNotFound) {
+			continue;
+		}
+
+		var v3 = edge2.from;
+		var v4 = edge2.to;
+
+		var isIntersecting = intersectLines({
+			x: individual.transformations[v1].x,
+			y: individual.transformations[v1].y
+		}, {
+			x: individual.transformations[v2].x,
+			y: individual.transformations[v2].y
+		}, {
+			x: individual.transformations[v3].x,
+			y: individual.transformations[v3].y
+		}, {
+			x: individual.transformations[v4].x,
+			y: individual.transformations[v4].y
+		});
+
+		if (isIntersecting) {
+			individual.intersections++;
+		}
+	};
+}
+
+var intersectLines = function(p, q, r, z) {
+	//TODO
+	return Math.random() * 100 < 50;
 }

@@ -142,12 +142,11 @@ var handleAlterGraphClick = function () {
 		population.addIndividual(newIndividual);
 	}
 
-	population.countIntersections();
-
 	for (var i = 0; i < 40; i++) {
 		population.evolvePopulation();
 		console.log(population.getBestIndividual().intersections);
 	}
+	graph.transformations = population.getBestIndividual().transformations;
 }
 
 var handleSave = function () {
