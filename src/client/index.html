@@ -116,14 +116,37 @@
 
 			})();
 		</script>
+		<script>
+			(function() {
 
+				var dlgtrigger = document.querySelector( '[data-algo]' ),
+					somedialog = document.getElementById( dlgtrigger.getAttribute( 'data-algo' ) ),
+					dlg = new DialogFx( somedialog );
+
+				dlgtrigger.addEventListener( 'click', dlg.toggle.bind(dlg) );
+
+			})();
+		</script>
+
+		<script>
+			(function() {
+
+				var dlgtrigger = document.querySelector( '[data-random]' ),
+					somedialog = document.getElementById( dlgtrigger.getAttribute( 'data-random' ) ),
+					dlg = new DialogFx( somedialog );
+
+				dlgtrigger.addEventListener( 'click', dlg.toggle.bind(dlg) );
+
+			})();
+		</script>
 		<script src="../../3rdparty/lodash.js"></script>
 		<script src="../../3rdparty/jquery-1.11.2.min.js"></script>
 		<script src="../../3rdparty/topMenu/js/classie.js"></script>
 		<script src="../../3rdparty/topMenu/js/main.js"></script>
 
-		<script src="../ui_state.js"></script>
+		<script src="../genetic-algorithm.js"></script>
 		<script src="../button_group.js"></script>
+		<script src="../ui_state.js"></script>
 		<script src="../constants.js"></script>
 		<script src="../event_bus.js"></script>
 		<script src="../state_manager.js"></script>

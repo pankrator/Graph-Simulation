@@ -137,12 +137,17 @@ var handleLoad = function () {
 
 var handleAlterGraphClick = function () {
 	var population = new Population();
-	for (var i = 0; i < 50; i++) {
-		population.addIndividual()
+	for (var i = 0; i < 100; i++) {
+		var newIndividual = Population.generateRandomGraph(graph);
+		population.addIndividual(newIndividual);
 	}
-	console.log(graph);
-	// TODO: Create population. Make copies of graph and shuffle the position of nodes.
-	// Add them to population and sort by number of intersections
+
+	population.countIntersections();
+
+	for (var i = 0; i < 40; i++) {
+		population.evolvePopulation();
+		console.log(population.getBestIndividual().intersections);
+	}
 }
 
 var handleSave = function () {
