@@ -75,6 +75,7 @@
 					<div><button id="BFS" data-dialog-close class="action">BFS</button></div>
 					<div><button id="Dijkstra" data-dialog-close class="action">Dijkstra</button></div>
 					<div><button id="AStar" data-dialog-close class="action">AStar</button></div>
+					<div><button id="alter-graph" data-dialog-close class="action">Подреди графа</button></div>
 				</div>
 			</div>
 		</div>
@@ -115,29 +116,7 @@
 
 			})();
 		</script>
-		<script>
-			(function() {
 
-				var dlgtrigger = document.querySelector( '[data-algo]' ),
-					somedialog = document.getElementById( dlgtrigger.getAttribute( 'data-algo' ) ),
-					dlg = new DialogFx( somedialog );
-
-				dlgtrigger.addEventListener( 'click', dlg.toggle.bind(dlg) );
-
-			})();
-		</script>
-
-		<script>
-			(function() {
-
-				var dlgtrigger = document.querySelector( '[data-random]' ),
-					somedialog = document.getElementById( dlgtrigger.getAttribute( 'data-random' ) ),
-					dlg = new DialogFx( somedialog );
-
-				dlgtrigger.addEventListener( 'click', dlg.toggle.bind(dlg) );
-
-			})();
-		</script>
 		<script src="../../3rdparty/lodash.js"></script>
 		<script src="../../3rdparty/jquery-1.11.2.min.js"></script>
 		<script src="../../3rdparty/topMenu/js/classie.js"></script>

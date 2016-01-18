@@ -6,8 +6,6 @@ var GraphData = function () {};
 var firstNode = null;
 var movingNode = null;
 
-var leftPanel = new ButtonGroup();
-
 var graph = new GraphData();
 var input;
 var manager;
@@ -52,7 +50,7 @@ document.getElementById("generate_directed_graph").addEventListener("click", gen
 var removeNode = function () {
 	var nodeToRemove = forceController.getNodeIdByCoordinates(input.mouse.x,
 															  input.mouse.y);
-	
+
 	if(nodeToRemove != null) {
 		manager.removeNode(graph, nodeToRemove);
 		EventBus.publish("remove-node", nodeToRemove);
@@ -205,27 +203,6 @@ window.onload = function () {
 	EventBus.subscribe("state-reset", handleResetState);
 	EventBus.subscribe("next-state", handleNextState);
 	EventBus.subscribe("previous-state", handlePreviousState);
-
-	var handButton = leftPanel.addButton(document.getElementById("hand_icon"));
-	var lineButton = leftPanel.addButton(document.getElementById("line"));
-
-	leftPanel.select(handButton);
-
-	leftPanel.addListener(handButton, function (selectionState) {
-		if (selectionState.iterator) {
-			selectionState.iterator.reset();
-			selectionState.iterator = null;
-		}
-		selectionState.tool = "HAND";
-	}.bind(undefined, selectionState));
-
-	leftPanel.addListener(lineButton, function (selectionState) {
-		if (selectionState.iterator) {
-			selectionState.iterator.reset();
-			selectionState.iterator = null;
-		}
-		selectionState.tool = "LINE";
-	}.bind(undefined, selectionState));
 
 	window.addEventListener("keyup", handleKeyPress);
 

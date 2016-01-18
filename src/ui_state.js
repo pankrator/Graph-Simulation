@@ -3,17 +3,60 @@ selectionState.firstNode = null;
 selectionState.iterator = null;
 selectionState.tool = "HAND";
 
+var HandTool = function () {}
+
+HandTool.prototype.mouseDown = function (event) {
+	if (event.button == 0) {
+		this.nodeId = forceController.getNodeIdByCoordinates(input.mouse.x,
+														 input.mouse.y);
+		if (this.nodeId != null) {
+			
+		}
+	}
+}
+
+var tools = {
+	"HAND": {
+		mouseDown: function (event) {
+		}
+	}
+}
+
+var leftPanel = new ButtonGroup();
 
 var attachUIListeners = function () {
+	var handButton = leftPanel.addButton(document.getElementById("hand_icon"));
+	var lineButton = leftPanel.addButton(document.getElementById("line"));
+
+	leftPanel.select(handButton);
+
+	leftPanel.addListener(handButton, function (selectionState) {
+		if (selectionState.iterator) {
+			selectionState.iterator.reset();
+			selectionState.iterator = null;
+		}
+		selectionState.tool = "HAND";
+	}.bind(undefined, selectionState));
+
+	leftPanel.addListener(lineButton, function (selectionState) {
+		if (selectionState.iterator) {
+			selectionState.iterator.reset();
+			selectionState.iterator = null;
+		}
+		selectionState.tool = "LINE";
+	}.bind(undefined, selectionState));
+	
 	var BFSIteratorButton = document.getElementById("BFS");
 	var DijkstraButton = document.getElementById("Dijkstra");
 	var AStarButton = document.getElementById("AStar");
+	var alterGraphButton = document.getElementById("alter-graph");
 	var saveButton = document.getElementById("save");
 	var loadButton = document.getElementById("load");
 
 	BFSIteratorButton.addEventListener("click", handleBFSIterator);
 	DijkstraButton.addEventListener("click", handleDijkstraIterator);
 	AStarButton.addEventListener("click", handleAStarIterator);
+	alterGraphButton.addEventListener("click", handleAlterGraphClick);
 	saveButton.addEventListener("click", handleSave);
 	loadButton.addEventListener("click", handleLoad);
 	// DFSIteratorButton.addEventListener("click", handleDFSIterator);
@@ -90,6 +133,16 @@ var handleLoad = function () {
 	}).done(function(data) {
 		manager.setGraph(graph, data);
 	});
+}
+
+var handleAlterGraphClick = function () {
+	var population = new Population();
+	for (var i = 0; i < 50; i++) {
+		population.addIndividual()
+	}
+	console.log(graph);
+	// TODO: Create population. Make copies of graph and shuffle the position of nodes.
+	// Add them to population and sort by number of intersections
 }
 
 var handleSave = function () {
