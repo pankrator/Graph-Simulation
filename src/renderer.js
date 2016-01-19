@@ -33,6 +33,8 @@ Renderer.prototype.renderNodes = function () {
 						  animationState.fill,
 						  animationState.fillColor);
 
+		this.renderText(transform.x, transform.y, id, LEVEL_FONT_COLOR);
+
 		if (state.level || state.level == 0) {
 			this.renderText(transform.x, transform.y,
 							state.level, LEVEL_FONT_COLOR);

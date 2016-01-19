@@ -137,15 +137,19 @@ var handleLoad = function () {
 
 var handleAlterGraphClick = function () {
 	var population = new Population();
-	for (var i = 0; i < 100; i++) {
+	for (var i = 0; i < 80; i++) {
 		var newIndividual = Population.generateRandomGraph(graph);
 		population.addIndividual(newIndividual);
 	}
 
-	for (var i = 0; i < 40; i++) {
+	for (var i = 0; i < 30; i++) {
 		population.evolvePopulation();
-		console.log(population.getBestIndividual().intersections);
+		if (population.getBestIndividual().intersections > 0) {
+			console.log(population.getBestIndividual().intersections);
+		}
 	}
+	alert(population.getBestIndividual().intersections);
+	graph.nodeSpeed = 20;
 	graph.transformations = population.getBestIndividual().transformations;
 }
 

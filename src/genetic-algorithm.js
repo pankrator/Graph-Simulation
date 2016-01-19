@@ -84,6 +84,8 @@ Population.prototype.crossover = function (first, second) {
 		childTransformations[i].y = parent2[i].y;
 	}
 
+
+
 	return child;
 }
 
@@ -105,45 +107,56 @@ Population.prototype.countIntersections = function (individual) {
 	for (var i = 0; i < edges.length - 1; i++) {
 		var v1 = edges[i].from;
 		var v2 = edges[i].to;
-		var k = i;
-		var edge2 = edges[k+1];
-		var edgeNotFound = false;
-		while(edge2.from == v1 || edge2.from == v2 || edge2.to == v1 || edge2.to == v2) {
-			edge2 = edges[++k];
-			if (k > edges.length - 1) {
-				edgeNotFound = true;
-				break;
+
+		for (var j = i + 1; j < edges.length; j++) {
+			var edge2 = edges[j];
+			if (edge2.from == v1 || edge2.from == v2 || edge2.to == v1 || edge2.to == v2) {
+				continue;
 			}
-		}
 
-		if (edgeNotFound) {
-			continue;
-		}
+			var v3 = edge2.from;
+			var v4 = edge2.to;
 
-		var v3 = edge2.from;
-		var v4 = edge2.to;
+			if (v1 == v3 || v1 == v4 && v2 == v3 || v2 == v4) {
+				continue;
+			}
 
-		var isIntersecting = intersectLines({
-			x: individual.transformations[v1].x,
-			y: individual.transformations[v1].y
-		}, {
-			x: individual.transformations[v2].x,
-			y: individual.transformations[v2].y
-		}, {
-			x: individual.transformations[v3].x,
-			y: individual.transformations[v3].y
-		}, {
-			x: individual.transformations[v4].x,
-			y: individual.transformations[v4].y
-		});
+			var isIntersecting = intersectLines({
+				x: individual.transformations[v1].x,
+				y: individual.transformations[v1].y
+			}, {
+				x: individual.transformations[v2].x,
+				y: individual.transformations[v2].y
+			}, {
+				x: individual.transformations[v3].x,
+				y: individual.transformations[v3].y
+			}, {
+				x: individual.transformations[v4].x,
+				y: individual.transformations[v4].y
+			});
 
-		if (isIntersecting) {
-			individual.intersections++;
+			if (isIntersecting) {
+				individual.intersections++;
+			}
 		}
 	};
 }
 
-var intersectLines = function(p, q, r, z) {
-	//TODO
-	return Math.random() * 100 < 50;
+var intersectLines = function(p1, p2, q1, q2) {
+	var o1 = orientation(p1, p2, q1);
+    var o2 = orientation(p1, p2, q2);
+    var o3 = orientation(q1, q2, p1);
+    var o4 = orientation(q1, q2, p2);
+
+    return (o1 != o2 && o3 != o4);
+}
+
+var orientation = function(p, q, r)
+{
+    var val = (q.y - p.y) * (r.x - q.x) -
+              (q.x - p.x) * (r.y - q.y);
+ 
+    if (val == 0) return 0;  // colinear
+ 
+    return (val > 0)? 1: 2; // clock or counterclock wise
 }
