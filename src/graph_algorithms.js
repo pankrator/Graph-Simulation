@@ -211,7 +211,7 @@ GraphManager.prototype.addNode = function (graph, x, y) {
 			x: x,
 			y: y,
 			index: graph.list.length,
-			radius: 30,
+			radius: DEFAULT_NODE_RADIUS,
 		 	neighbours: []
 		}));
 	} else {
@@ -219,7 +219,7 @@ GraphManager.prototype.addNode = function (graph, x, y) {
 			x: x,
 			y: y,
 			index: freeIndex,
-			radius: 30,
+			radius: DEFAULT_NODE_RADIUS,
 			neighbours: []
 		});
 	}

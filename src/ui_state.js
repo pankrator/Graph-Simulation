@@ -132,25 +132,59 @@ var handleLoad = function () {
 		}
 	}).done(function(data) {
 		manager.setGraph(graph, data);
+		for (var id in graph.transformations) {
+			graph.transformations[id].radius = DEFAULT_NODE_RADIUS;
+		}
 	});
 }
 
 var handleAlterGraphClick = function () {
+	var startTime = Date.now();
 	var population = new Population();
-	for (var i = 0; i < 80; i++) {
-		var newIndividual = Population.generateRandomGraph(graph);
-		population.addIndividual(newIndividual);
+
+	var finalize = function () {
+		var bestIndividual = population.getBestIndividual();
+		console.log("intersections:", bestIndividual.intersections,
+					"nodes:", bestIndividual.overlappingNodes,
+					"edge-to-node:", bestIndividual.overlappingNodeWithEdge);
+		graph.transformations = bestIndividual.transformations;
+		console.log("Finished in:", Date.now() - startTime);
+
+		arranging = false;
 	}
 
-	for (var i = 0; i < 30; i++) {
-		population.evolvePopulation();
-		if (population.getBestIndividual().intersections > 0) {
-			console.log(population.getBestIndividual().intersections);
+	// var separatedGraphs = separateGraph(graph);
+	graph.nodeSpeed = 0;
+
+	setTimeout(function() {
+		arranging = true;
+		for (var i = 0; i < Population.MAX_SIZE; i++) {
+			var newIndividual = Population.generateRandomGraph(graph);
+			population.addIndividual(newIndividual);
 		}
-	}
-	alert(population.getBestIndividual().intersections);
-	graph.nodeSpeed = 20;
-	graph.transformations = population.getBestIndividual().transformations;
+
+		var i = 0;
+		var stepEvolving = function(i) {
+			population.evolvePopulation();
+			if (i % 10 == 0) {
+				graph.transformations = population.getBestIndividual().transformations;
+				renderer.clear();
+				renderer.render();
+				console.log(population.getBestIndividual().overlappingNodes,
+							population.getBestIndividual().overlappingNodeWithEdge,
+							population.getBestIndividual().intersections);
+			}
+			i++;
+
+			if (!Population.isGraphAltered(population.getBestIndividual(), i)) {
+				setTimeout(stepEvolving.bind(this, i), 1);
+				// stepEvolving(i);
+			} else {
+				finalize();
+			}
+		}
+		stepEvolving(i);
+	}, 400);
 }
 
 var handleSave = function () {

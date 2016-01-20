@@ -151,7 +151,7 @@ GraphManager.prototype.generateRandomGraph = function(graph, directed, verticesC
 		EventBus.publish("add-node", id, 
 							 	 	 500,
 							 	 	 500,
-							 	 	 30);
+							 	 	 DEFAULT_NODE_RADIUS);
 	}
 
 	for (var e = 1; e <= edgesCount; e++) {

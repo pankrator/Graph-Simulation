@@ -1,5 +1,6 @@
 var context, canvas;
 var canvasBoundaries;
+var arranging = false;
 
 var GraphData = function () {};
 
@@ -326,8 +327,11 @@ var handleNextState = function (previousState, currentState) {
 };
 
 var update = function () {
-	renderer.clear();
-	renderer.render();
+
+	if (!arranging) {
+		renderer.clear();
+		renderer.render();
+	}
 
 	if (firstNode && selectionState.tool == "LINE") {
 		renderer.renderLine(

@@ -284,5 +284,5 @@ Renderer.prototype.render = function () {
 };
 
 Renderer.prototype.clear = function () {
-	this.context.clearRect(0, 0, 1500, 2000);
+	this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
 }
