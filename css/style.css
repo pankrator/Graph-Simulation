@@ -1,0 +1,33 @@
+#bored {
+	color: #808080;
+}
+
+.occ-center {
+	text-align: center;
+}
+
+#dfd img{
+	/*background-image: url(dfd.jpg);*/
+	height: 700px;
+  	
+}
+
+.demo {
+	width: 800px;
+	height: 400px;
+}
+
+.tech-image {
+	width: 200px;
+	height: 200px;
+}
+
+.visualisation {
+	width: 800px;
+	height: 500px;
+}
+
+.visualisationProblem {
+	width: 1000px;
+	height: 600px;
+}
