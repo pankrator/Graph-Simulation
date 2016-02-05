@@ -149,7 +149,7 @@ var handleAlterGraphClick = function () {
 					"edge-to-node:", bestIndividual.overlappingNodeWithEdge);
 		graph.transformations = bestIndividual.transformations;
 		console.log("Finished in:", Date.now() - startTime);
-
+		alert("Finished in: " + (Date.now() - startTime));
 		arranging = false;
 	}
 

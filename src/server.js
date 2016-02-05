@@ -17,7 +17,10 @@ var graphs = {
     "Dijkstra": "DijkstraGraph",
     "Sample": "SampleGraph.json",
     "AStar": "AStar.json",
-    "inters2": "inters2.json"
+    "inters2": "inters2.json",
+    "easy": "easy.json",
+    "difficult": "difficult.json",
+    "not_easy": "not_easy.json"
 };
 
 for (var name in graphs) {

@@ -2,6 +2,7 @@ var KEEP_OFFSET = 80;
 var ELITISM_OFFSET = 10;
 var MUTATE_RATE = 0.75;
 var MAX_NUMBER_SAMES = 4;
+var MAX_DISTANCE = 300;
 
 var Population = function () {
 	this.individuals = [];
@@ -12,6 +13,7 @@ var Population = function () {
 Population.CHECK_NODE_INTERSECTION = true;
 Population.CHECK_NODE_TO_EDGE_INTERSECTION = true;
 Population.CHECK_ZERO_INTERSECTIONS = true;
+Population.TOLERANT_EDGE_INTERSECTIONS = 0;
 Population.MAX_SIZE = 300;
 Population.MIN_EVOLVE_TIMES = 50;
 
@@ -42,7 +44,7 @@ Population.isGraphAltered = function (individual, iterationNumber) {
 	}
 
 	if (Population.CHECK_ZERO_INTERSECTIONS) {
-		return overlappingNodes == 0 && individual.overlappingNodeWithEdge == 0 && individual.intersections <= 8;
+		return overlappingNodes == 0 && individual.overlappingNodeWithEdge == 0 && individual.intersections <= Population.TOLERANT_EDGE_INTERSECTIONS * 4;
 	}
 	return ((iterationNumber > Population.MIN_EVOLVE_TIMES && 
 			overlappingNodes < 1 && individual.overlappingNodeWithEdge <= 0) ||
@@ -358,7 +360,7 @@ Population.prototype.countIntersections = function (individual) {
 				if (manager.areConnected(individual, node1.id, node2.id)) {
 					// if (distance < 90 || distance > 450) {
 					// }
-					if (distance > 450) {
+					if (distance > MAX_DISTANCE) {
 						individual.farFromNeighbours += 1;
 					}
 					if (distance < 90) {
