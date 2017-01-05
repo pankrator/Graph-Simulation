@@ -49,5 +49,5 @@ app.get('/load', function(req, res) {
 	res.send(savedGraphs[req.query.name]);
 });
 
-app.listen(8080);
+app.listen(process.env.PORT || 8080);
 console.log('listening to http://localhost:8080');
