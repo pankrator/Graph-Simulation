@@ -125,10 +125,10 @@ GraphManager.prototype.removeNode = function(graph, nodeId) {
 	for (var edge in graph.edges) {
 	if (graph.edges[edge].from == nodeId ||
 		graph.edges[edge].to == nodeId) {
-		
+
 			var nodeFrom = graph.nodes[graph.edges[edge].from];
-			var edgeIndex = nodeFrom.edges.indexOf(parseInt(edge));
-			
+			var edgeIndex = nodeFrom.edges.indexOf(edge);
+
 			if(edgeIndex > -1) {
 				nodeFrom.edges.splice(edgeIndex, 1);
 				edgesToRemove.push(edge);
