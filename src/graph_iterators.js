@@ -3,7 +3,7 @@ var ctx = canvas.getContext("2d");
 var SEEN_NODE_COLOR = "green";
 var FINISHED_NODE_COLOR = "black";
 var ROOT_NODE_COLOR = "blue";
-// var NEIGHBOUR_NODE_COLOR = "blue"; 
+// var NEIGHBOUR_NODE_COLOR = "blue";
 // var SEEN_NODE_COLOR = ctx.createRadialGradient(20, 30, 30, 60, 60, 20);
 // SEEN_NODE_COLOR.addColorStop(0, "green");
 // SEEN_NODE_COLOR.addColorStop(1, "blue");
@@ -38,7 +38,7 @@ DFSIterator.prototype.next = function () {
 		return;
 	}
 	this.neighbours = this.graph.list[this.parent].neighbours;
-	
+
 	this.next();
 };
 
@@ -108,7 +108,7 @@ DijkstraIterator.prototype.next = function () {
 	if (!this.started) {
 		return;
 	}
-	
+
 	this.currentState++;
 	if (this.currentState >= this.states.length) {
 		this.currentState = this.states.length - 1;
@@ -186,7 +186,7 @@ DijkstraIterator.prototype.start = function (startId) {
 		}
 
 		if (state[nodeId].distance != Infinity) {
-			this.states.push(state);			
+			this.states.push(state);
 		}
 	}
 };
@@ -208,7 +208,7 @@ DijkstraIterator.prototype.reset = function () {
 		states[nodeId].parentId = null;
 		states[nodeId].distance = null;
 	}
-	
+
 	EventBus.publish("state-reset", states);
 };
 
@@ -239,7 +239,7 @@ BFSIterator.prototype.previous = function () {
 	if (!this.started) {
 		return;
 	}
-	
+
 	this.currentState--;
 
 	if(this.currentState < 0) {
@@ -303,7 +303,7 @@ BFSIterator.prototype.reset = function () {
 		states[nodeId].toBeVisited = false;
 		states[nodeId].level = null;
 	}
-	
+
 	EventBus.publish("state-reset", states);
 };
 
@@ -331,7 +331,7 @@ AStarIterator.prototype.start = function (startId, finishId) {
 
 	var initialState = {};
 	for (var node in this.graph.nodes) {
-		initialState[node] = { 
+		initialState[node] = {
 			isOpen: false,
 			isClosed: false,
 			onPath: false,
@@ -380,7 +380,7 @@ AStarIterator.prototype.start = function (startId, finishId) {
 
 				cameFrom[neighbourId] = current;
 				if (neighbourId != finishId) {
-					state[neighbourId].onPath = true;					
+					state[neighbourId].onPath = true;
 				}
 				this.GScore[neighbourId] = tentativeGScore;
 				this.FScore[neighbourId] = this.GScore[neighbourId] + this.heuristic(neighbourId, finishId);
@@ -389,9 +389,9 @@ AStarIterator.prototype.start = function (startId, finishId) {
 				if (openSet.indexOf(neighbourId) == -1) {
 					openSet.push(neighbourId);
 					if (neighbourId != finishId) {
-						state[neighbourId].isOpen = true;						
+						state[neighbourId].isOpen = true;
 					}
-				} 
+				}
 			}
 		}
 		this.states.push(state);
@@ -416,7 +416,7 @@ AStarIterator.prototype.previous = function () {
 	if (!this.started) {
 		return;
 	}
-	
+
 	this.currentState--;
 
 	if(this.currentState < 0) {
@@ -463,6 +463,6 @@ AStarIterator.prototype.reset = function () {
 		states[nodeId].parentId = null;
 		states[nodeId].distance = null;
 	}
-	
+
 	EventBus.publish("state-reset", states);
 }

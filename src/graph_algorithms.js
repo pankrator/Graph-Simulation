@@ -80,7 +80,7 @@ GraphManager.prototype.setDrawConnections = function (graph, drawConnections) {
 
 GraphManager.prototype.draw = function (graph, context) {
 	var list = graph.list;
-	for (var i = 0; i < list.length; i++) {	
+	for (var i = 0; i < list.length; i++) {
 		context.beginPath();
 		if (list[i].fill) {
 			context.fillStyle = list[i].color ? list[i].color : "white";

@@ -17,7 +17,7 @@ var stateManager;
 
 var createNode = function () {
 	var nodeIndex = manager.addNode(graph);
-	EventBus.publish("add-node", nodeIndex, 
+	EventBus.publish("add-node", nodeIndex,
 							 	 input.mouse.x,
 							 	 input.mouse.y,
 							 	 DEFAULT_NODE_RADIUS);
@@ -52,7 +52,7 @@ document.getElementById("generate_directed_graph").addEventListener("click", gen
 var removeNode = function () {
 	var nodeToRemove = forceController.getNodeIdByCoordinates(input.mouse.x,
 															  input.mouse.y);
-	
+
 	if(nodeToRemove != null) {
 		manager.removeNode(graph, nodeToRemove);
 		EventBus.publish("remove-node", nodeToRemove);
@@ -80,7 +80,7 @@ var addEdge = function () {
 var selectNode = function () {
 	var nodeId = forceController.getNodeIdByCoordinates(input.mouse.x,
 														input.mouse.y);
-	
+
 	if (nodeId != null) {
 		EventBus.publish("node-selected", nodeId);
 	}
@@ -92,11 +92,11 @@ var showEdgeChangeDialog = function (edge) {
 		if (!graph.directed) {
 			var node = graph.nodes[edge.to];
 			var index = _.findIndex(node.edges, function (edgeId) {
-				return graph.edges[edgeId].to == edge.from;	
+				return graph.edges[edgeId].to == edge.from;
 			});
 			var edgeId = node.edges[index];
 
-			graph.edges[edgeId].weight = parseInt(newEdgeSize);			
+			graph.edges[edgeId].weight = parseInt(newEdgeSize);
 		}
 
 		edge.weight = parseInt(newEdgeSize);

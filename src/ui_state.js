@@ -50,7 +50,7 @@ var selectNodeForConnecting = function (nodeId) {
 			selectionState.goalNode = null;
 			return;
 		}
-		
+
 		startIterator(firstNode);
 	}
 }

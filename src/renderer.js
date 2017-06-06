@@ -23,12 +23,12 @@ Renderer.prototype.renderNodes = function () {
 		var node = this.graph.nodes[id];
 		var transform = this.graph.transformations[id];
 		var animationState = this.graph.animationStates[id];
-		
+
 		var state = this.graph.states[id];
 
 
 		this.renderCircle(transform.x, transform.y,
-						  transform.radius, 
+						  transform.radius,
 						  animationState.color,
 						  animationState.fill,
 						  animationState.fillColor);
@@ -51,7 +51,7 @@ Renderer.prototype.renderNodes = function () {
 Renderer.prototype.renderEdges = function(edges) {
 	for (var i = 0; i < edges.length; i++) {
 		var edge = this.graph.edges[edges[i]];
-		
+
 		context.strokeStyle = EDGE_STROKE_STYLE;
 		var node1 = this.graph.transformations[edge.from];
 		var node2 = this.graph.transformations[edge.to];
@@ -76,9 +76,9 @@ Renderer.prototype.renderEdges = function(edges) {
 		}, EDGE_STROKE_STYLE, LINE_WIDTH);
 
 		if (edge.weight !== 0) {
-			context.font = DEFAULT_FONT; 
+			context.font = DEFAULT_FONT;
 			context.fillStyle = EDGE_WEIGHT_FILL_STYLE;
-			context.fillText(edge.weight, 
+			context.fillText(edge.weight,
 							 (node1.x + node2.x) / 2,
 							 (node1.y + node2.y) / 2 - 5); // Magic
 
@@ -175,7 +175,7 @@ Renderer.prototype.playPulseAnimation = function (nodeId) {
 
 	this.animations.push(function(transform, animationState, prevAnimationState) {
 		transform.radius += animationState.shrinking ? -1 : 1;
-		
+
 		if (transform.radius < 25 && animationState.shrinking) {
 			animationState.shrinking = false;
 			animationState.fill = true;

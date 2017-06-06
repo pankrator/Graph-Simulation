@@ -148,7 +148,7 @@ GraphManager.prototype.generateRandomGraph = function(graph, directed, verticesC
 
 	for (var v = 0; v < verticesCount; v++) {
 		var id = this.addNode(graph);
-		EventBus.publish("add-node", id, 
+		EventBus.publish("add-node", id,
 							 	 	 500,
 							 	 	 500,
 							 	 	 30);
