@@ -11,87 +11,103 @@ var ROOT_NODE_COLOR = "blue";
 var DFSIterator = function (graph) {
 	this.graph = graph;
 	this.stack = [];
-	this.used = [];
+	this.states = [];
+	this.discovered = {};
 	this.started = false;
 	this.level = 1;
 	this.neighbours = null;
 	this.parent = null;
+	this.currentState = -1;
 };
 
 DFSIterator.prototype.next = function () {
-	for (var i = 0; i < this.neighbours.length; i++) {
-		if (!this.used[this.neighbours[i]]) {
-			this.recursive(this.neighbours[i], this.parent)
-			return;
-		}
-	}
-	if (this.parent == null) {
+	if (!this.started) {
 		return;
 	}
-	if (!this.graph.list[this.parent].rootNode) {
-		this.graph.list[this.parent].color = FINISHED_NODE_COLOR;
-		this.graph.list[this.parent].fill - true;
+	this.currentState++;
+	if (this.currentState >= this.states.length) {
+		this.currentState = this.states.length - 1;
 	}
 
-	this.parent = this.graph.list[this.parent].parent;
-	if (this.parent == null) {
+	EventBus.publish("next-state", this.graph.states, this.states[this.currentState]);
+	console.log('>>>>>>here', this.states[this.currentState]);
+	this.graph.states = this.states[this.currentState];
+};
+
+DFSIterator.prototype.previous = function () {
+	if (!this.started) {
 		return;
 	}
-	this.neighbours = this.graph.list[this.parent].neighbours;
 
-	this.next();
-};
+	this.currentState--;
 
-DFSIterator.prototype.recursive = function (v, parent) {
-	this.used[v] = (parent !== undefined && parent != null) ? this.used[parent] + 1 : 1;
-	var node = this.graph.list[v];
-	node.color = SEEN_NODE_COLOR;
-	node.fill = true;
-	// node.radius = 40;
-	node.level = this.used[v] + 1;
-	node.parent = parent;
-	var neighbours = node.neighbours;
-
-	if (neighbours.length > 1)  {
-		this.parent = v;
-		this.neighbours = neighbours;
-	} else {
-		node.color = FINISHED_NODE_COLOR;
-		node.fill = true;
+	if(this.currentState < 0) {
+		this.currentState = 0;
 	}
+
+	EventBus.publish("previous-state", this.graph.states, this.states[this.currentState]);
+	this.graph.states = this.states[this.currentState];
 };
 
-DFSIterator.prototype.start = function (startVertex) {
+DFSIterator.prototype.start = function (startId) {
 	if (this.started) {
 		return;
 	}
+	console.log('>>>>>>Here', this.graph.states);
+
+	let initialState = {};
+	for (let node in this.graph.nodes) {
+		this.discovered[node] = false;
+		initialState[node] = { visited: false, toBeVisited: false };
+	}
 
 	this.started = true;
-	this.parent = startVertex.index;
-	this.neighbours = startVertex.neighbours;
-	this.used[startVertex.index] = this.level;
-	startVertex.rootNode = true;
-	startVertex.color = ROOT_NODE_COLOR;
-	startVertex.fill = true;
+	this.stack.push(startId);
+	initialState[startId].toBeVisited = true;
+	initialState[startId].level = 0;
+	this.states.push(initialState);
 
-	this.next();
+	while(this.stack.length > 0) {
+		let parentId = this.stack.pop();
+		let state = _.cloneDeep(this.states[this.states.length - 1]);
+		state[parentId].visited = true;
+		if (!this.discovered[parentId]) {
+			this.discovered[parentId] = true;
+			let edgesTo = this.graph.nodes[parentId].edges;
+			for (edge of edgesTo) {
+				let childId = this.graph.edges[edge].to;
+				this.stack.push(childId);
+				state[childId].toBeVisited = true;
+				state[childId].level = state[parentId].level + 1;
+				state[childId].parentId = parentId;
+			}
+		}
+
+		this.states.push(state);
+	}
+
 };
 
 DFSIterator.prototype.reset = function () {
 	this.level = 1;
 	this.stack = [];
-	this.used = [];
+	this.states = [];
+	this.discovered = {};
+	this.states = [];
+	this.currentState = -1;
 	this.started = false;
 
-	var list = this.graph.list;
-	for (var i = 0; i < list.length; i++) {
-		list[i].rootNode = false;
-		list[i].color = null;
-		list[i].fill = null;
-		list[i].level = null;
-		list[i].radius = 30; // Magic
-		list[i].parent = null;
+	var states = this.graph.states;
+	console.log('>>>', states);
+	for (var nodeId in states) {
+		states[nodeId].active = false;
+		states[nodeId].visited = false;
+		states[nodeId].toBeVisited = false;
+		states[nodeId].parentId = null;
+		states[nodeId].distance = null;
 	}
+
+	EventBus.publish("state-reset", states);
 };
 
 var DijkstraIterator = function(graph) {
@@ -247,7 +263,6 @@ BFSIterator.prototype.previous = function () {
 	}
 
 	EventBus.publish("previous-state", this.graph.states, this.states[this.currentState]);
-
 	this.graph.states = this.states[this.currentState];
 };
 
