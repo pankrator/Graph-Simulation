@@ -115,6 +115,7 @@ GraphManager.prototype.createEdge = function (first, second, weight) {
 	return {
 		id: Number(++this.edgeCounter).toString(),
 		weight: weight != undefined ? weight : 0,
+		maxFlow: 0,
 		from: first,
 		to: second
 	};

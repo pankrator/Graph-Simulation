@@ -78,7 +78,7 @@ Renderer.prototype.renderEdges = function(edges) {
 		if (edge.weight !== 0) {
 			context.font = DEFAULT_FONT; 
 			context.fillStyle = EDGE_WEIGHT_FILL_STYLE;
-			context.fillText(edge.weight, 
+			context.fillText(edge.weight + " $ " + edge.maxFlow, 
 							 (node1.x + node2.x) / 2,
 							 (node1.y + node2.y) / 2 - 5); // Magic
 

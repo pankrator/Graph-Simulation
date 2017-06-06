@@ -8,12 +8,14 @@ var attachUIListeners = function () {
 	var BFSIteratorButton = document.getElementById("BFS");
 	var DijkstraButton = document.getElementById("Dijkstra");
 	var AStarButton = document.getElementById("AStar");
+	var MaxFlow = document.getElementById("MaxFlow");
 	var saveButton = document.getElementById("save");
 	var loadButton = document.getElementById("load");
 
 	BFSIteratorButton.addEventListener("click", handleBFSIterator);
 	DijkstraButton.addEventListener("click", handleDijkstraIterator);
 	AStarButton.addEventListener("click", handleAStarIterator);
+	MaxFlow.addEventListener("click", handleMaxFlowIterator);
 	saveButton.addEventListener("click", handleSave);
 	loadButton.addEventListener("click", handleLoad);
 	// DFSIteratorButton.addEventListener("click", handleDFSIterator);
@@ -69,6 +71,13 @@ var handleBFSIterator = function () {
 
 var handleAStarIterator = function () {
 	var iterator = new AStarIterator(graph);
+	selectionState.tool = "ITERATOR";
+	selectionState.waitForGoalNode = true;
+	initializeIterator(iterator);
+}
+
+var handleMaxFlowIterator = function () {
+	var iterator = new MaxFlowIterator(graph);
 	selectionState.tool = "ITERATOR";
 	selectionState.waitForGoalNode = true;
 	initializeIterator(iterator);

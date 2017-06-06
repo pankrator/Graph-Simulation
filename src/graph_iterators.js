@@ -104,6 +104,7 @@ var DijkstraIterator = function(graph) {
 	this.started = false;
 };
 
+// TODO: Refactor - same as BFS
 DijkstraIterator.prototype.next = function () {
 	if (!this.started) {
 		return;
@@ -221,6 +222,7 @@ var BFSIterator = function (graph) {
 	this.states = [];
 };
 
+// TODO: Refactor same as Dijkstra
 BFSIterator.prototype.next = function () {
 	if (!this.started) {
 		return;
@@ -458,6 +460,182 @@ AStarIterator.prototype.reset = function () {
 		states[nodeId].isGoal = false;
 		states[nodeId].isStart = false;
 		states[nodeId].active = false;
+		states[nodeId].visited = false;
+		states[nodeId].toBeVisited = false;
+		states[nodeId].parentId = null;
+		states[nodeId].distance = null;
+	}
+	
+	EventBus.publish("state-reset", states);
+}
+
+var MaxFlowIterator = function (grah) {
+	this.graph = graph;
+	this.states = [];
+	this.currentState = -1;
+	this.started = false;
+	this.flow = 0;
+};
+
+MaxFlowIterator.prototype.start = function (startId, finishId) {
+	if (this.started) {
+		return;
+	}
+
+	this.started = true;
+	var initialState = {};
+	// for (var edge in this.graph.edges) {
+	// 	this.graph.edges[edge].weight = 0;
+	// }
+	var state = _.cloneDeep(this.states[this.states.length - 1]);
+
+	var path = this.findPath(startId, finishId);
+
+	var minWeight = this.findMinWeight(path);
+
+	// delete graph.edges[edgesToRemove[i]];
+
+	console.log(this.graph);
+	
+	// for (var edge in this.graph.edges) {
+	// 	console.log(edge);
+	// 	delete this.graph.edges[edge];
+	// }
+	console.log("delete edges");
+
+	// this.queue.push(startId);
+	// initialState[startId].toBeVisited = true;
+	// initialState[startId].level = 0;
+	// this.states.push(initialState);
+	// this.discovered[startId] = true;
+
+	// while (this.queue.length > 0) {
+	// 	var parentId = this.queue.shift();
+	// 	var state = _.cloneDeep(this.states[this.states.length - 1]);
+	// 	state[parentId].visited = true;
+	// 	var edgesTo = this.graph.nodes[parentId].edges;
+	// 	for (var i = 0; i < edgesTo.length; i++) {
+	// 		var childId = this.graph.edges[edgesTo[i]].to;
+	// 		if (!this.discovered[childId]) {
+	// 			this.queue.push(childId);
+	// 			state[childId].toBeVisited = true;
+	// 			state[childId].level = state[parentId].level + 1;
+	// 			state[childId].parentId = parentId;
+	// 			this.discovered[childId] = true;
+	// 		}
+	// 	}
+
+	// 	this.states.push(state);
+	// }
+}
+
+MaxFlowIterator.prototype.findPath = function(startId, finishedId) {
+	var iterator = new DijkstraIterator(graph);
+	iterator.start(startId);
+	var path = [];
+	var lastEdge = iterator.states[iterator.states.length - 1][finishedId];
+	console.log(lastEdge);
+	console.log(this.graph.edges);
+
+	if(lastEdge.distance == Infinity) {
+		alert("Няма път");
+		return [];
+	}
+
+	path.push(finishedId);
+	var flag = true;
+	var id = finishedId;
+	while(flag) {
+		if(id && iterator.previousNodes[id]) {
+			path.push(iterator.previousNodes[id]);
+			id = iterator.previousNodes[id];
+		}
+		else {
+			flag = false;
+		}
+	}
+
+	path = _.chain(path)
+	.reverse()
+	.map(function(item) {return parseInt(item, 10)})
+	.value();
+
+	console.log(path);
+	return path;
+}
+
+MaxFlowIterator.prototype.findMinWeight = function(path) {
+	var minWeight = Infinity;
+	var allWeights = [];
+
+	for(var i = 0; i< path.length - 1; i ++) {
+		var weightEdge = _.chain(this.graph.edges)
+		.filter(function(edge) {
+			return edge.from == path[i] && edge.to == path[i+1];
+		})
+		.map(function(edge) {
+			return edge.weight;
+		})
+		.value();
+
+		allWeights.push(weightEdge);
+	}
+
+	minWeight = _.chain(allWeights)
+	.flatten()
+	.min()
+	.value();
+
+	return minWeight;
+}
+
+
+// var removeEdge = function (edgeId) {
+// 	_.filter(this.graph.nodes, function(node) {
+// 		node.edges
+// 	})
+// }
+
+MaxFlowIterator.prototype.next = function () {
+	if (!this.started) {
+		return;
+	}
+
+	// console.log(this.graph.edges);
+
+	this.currentState++;
+	if (this.currentState >= this.states.length) {
+		this.currentState = this.states.length - 1;
+	}
+
+	EventBus.publish("next-state", this.graph.states, this.states[this.currentState]);
+	this.graph.states = this.states[this.currentState];
+
+}
+
+MaxFlowIterator.prototype.previous = function () {
+	if (!this.started) {
+		return;
+	}
+	
+	this.currentState--;
+
+	if(this.currentState < 0) {
+		this.currentState = 0;
+	}
+
+	EventBus.publish("previous-state", this.graph.states, this.states[this.currentState]);
+
+	this.graph.states = this.states[this.currentState];
+};
+
+MaxFlowIterator.prototype.reset = function () {
+	this.states = [];
+	this.currentState = -1;
+	this.started = false;
+
+	var states = this.graph.states;
+	for (var nodeId in states) {
 		states[nodeId].visited = false;
 		states[nodeId].toBeVisited = false;
 		states[nodeId].parentId = null;
