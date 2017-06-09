@@ -14,24 +14,18 @@ const InteractManager = require('./interact-manager');
 const UIState = require('./ui_state');
 let selectionState = UIState.selectionState;
 
-var context, canvas;
-var canvasBoundaries;
+let GraphData = function () {};
 
-var GraphData = function () {};
+let leftPanel = new ButtonGroup();
 
-var firstNode = null;
-var movingNode = null;
-
-var leftPanel = new ButtonGroup();
-
-var graph = new GraphData();
-var input;
-var manager;
+let graph = new GraphData();
+let input;
+let manager;
 let interactManager;
-var forceController;
-var renderer;
+let forceController;
+let renderer;
 
-var handleKeyPress = function (event) {
+const handleKeyPress = function (event) {
 	switch (event.keyCode) {
 		case 37:
 			if (selectionState.tool == 'ITERATOR') {
@@ -135,7 +129,7 @@ const handleLoad = () => {
 
 	$.ajax({
 		method: 'GET',
-		url: 'http://localhost:8080/load',
+		url: '/load',
 		dataType: 'json',
 		data: {
 			name: name,
@@ -153,7 +147,7 @@ const handleSave = () => {
 
 	$.ajax({
 		method: 'POST',
-		url: 'http://localhost:8080/save',
+		url: '/save',
 		contentType: 'text/json',
 		data: JSON.stringify({
 			name: name,
@@ -339,7 +333,6 @@ var update = function () {
 	renderer.render();
 
 	interactManager.update();
-
 
 	if (selectionState.tool == 'ITERATOR') {
 		if (selectionState.waitForStartingNode || selectionState.waitForGoalNode) {
