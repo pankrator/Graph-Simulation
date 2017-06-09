@@ -2,15 +2,15 @@
   "name": "Graphs",
   "main": "server.js",
   "scripts": {
+    "postinstall": "grunt browserify",
     "start": "node index.js"
   },
   "dependencies": {
+    "body-parser": "~1.12.3",
     "express": "^4.10.1",
-    "mongoose": "^4.0.0",
-    "body-parser": "~1.12.3"
-  },
-  "devDependencies": {
     "grunt": "^1.0.1",
-    "grunt-browserify": "^5.0.0"
+    "grunt-browserify": "^5.0.0",
+    "grunt-cli": "1.2.0",
+    "mongoose": "^4.0.0"
   }
 }
