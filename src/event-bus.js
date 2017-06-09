@@ -1,5 +1,4 @@
-var EventBus = function () {
-};
+const EventBus = function () {};
 
 EventBus.events = {};
 
@@ -26,11 +25,4 @@ EventBus.publish = function (eventName) {
     }
 };
 
-// EventBus.prototype.removeEventListener = function (callback) {
-//     for (var i = 0; i < this.listeners.length; i++) {
-//         if (this.listeners[i] == callback) {
-//             this.listeners[i] = this.listeners[this.listeners.length - 1];
-//             this.listeners.pop();
-//         }
-//     }
-// };
+module.exports = EventBus;

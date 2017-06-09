@@ -1,127 +1,47 @@
-var selectionState = {};
+'use strict';
+
+let selectionState = {};
 selectionState.firstNode = null;
 selectionState.iterator = null;
 selectionState.tool = "HAND";
 
+let elements = {
+	canvas: null,
+	context: null
+};
 
-var attachUIListeners = function () {
-	var BFSIteratorButton = document.getElementById("BFS");
-	var DijkstraButton = document.getElementById("Dijkstra");
-	var AStarButton = document.getElementById("AStar");
-	var saveButton = document.getElementById("save");
-	var loadButton = document.getElementById("load");
+const initializeCanvasContext = () => {
+	elements.canvas = document.getElementById("area");
+	elements.context = elements.canvas.getContext("2d");
+};
 
-	BFSIteratorButton.addEventListener("click", handleBFSIterator);
-	DijkstraButton.addEventListener("click", handleDijkstraIterator);
-	AStarButton.addEventListener("click", handleAStarIterator);
-	saveButton.addEventListener("click", handleSave);
-	loadButton.addEventListener("click", handleLoad);
-	// DFSIteratorButton.addEventListener("click", handleDFSIterator);
+const attachUIListeners = function (handlers) {
+	const notDirectedGraphButton = document.getElementById("not_directed_graph");
+	const directedGraphButton = document.getElementById("directed_graph");
+	const generateUndirectedGraphButton = document.getElementById("generate_not_directed_graph");
+	const generateDirectedGraphButton = document.getElementById("generate_directed_graph");
+	const BFSIteratorButton = document.getElementById("BFS");
+	const DijkstraButton = document.getElementById("Dijkstra");
+	const AStarButton = document.getElementById("AStar");
+	const saveButton = document.getElementById("save");
+	const loadButton = document.getElementById("load");
 
-	// EventBus.subscribe("node-selected", startIterator);
-	EventBus.subscribe("node-selected", selectNodeForConnecting);
-}
+	notDirectedGraphButton.addEventListener("click", handlers.createNotDirectedGraph);
+	directedGraphButton.addEventListener("click", handlers.createDirectedGraph);
+	generateUndirectedGraphButton.addEventListener("click", handlers.generateNotDirectedGraph);
+	generateDirectedGraphButton.addEventListener("click", handlers.generateDirectedGraph);
 
-var selectNodeForConnecting = function (nodeId) {
-	if (nodeId == null) {
-		return;
-	}
+	BFSIteratorButton.addEventListener("click", handlers.handleBFSIterator);
+	DijkstraButton.addEventListener("click", handlers.handleDijkstraIterator);
+	AStarButton.addEventListener("click", handlers.handleAStarIterator);
+	saveButton.addEventListener("click", handlers.handleSave);
+	loadButton.addEventListener("click", handlers.handleLoad);
 
-	if (selectionState.tool == "LINE") {
-		firstNode = nodeId;
-		renderer.playPulseAnimation(nodeId);
-	} else if (selectionState.tool == "HAND") {
-		movingNode = nodeId;
-		renderer.playPulseAnimation(nodeId);
-	} else if (selectionState.tool == "ITERATOR") {
-		firstNode = nodeId;
+};
 
-		if (selectionState.waitForStartingNode && selectionState.waitForGoalNode) {
-			selectionState.waitForStartingNode = false;
-			selectionState.startNode = firstNode;
-			return;
-		}
-		if (!selectionState.waitForStartingNode && selectionState.waitForGoalNode
-			&& selectionState.startNode) {
-			selectionState.goalNode = firstNode;
-			selectionState.waitForGoalNode = false;
-			startIterator(selectionState.startNode, selectionState.goalNode);
-			selectionState.startNode = null;
-			selectionState.goalNode = null;
-			return;
-		}
-
-		startIterator(firstNode);
-	}
-}
-
-var handleDijkstraIterator = function () {
-	var iterator = new DijkstraIterator(graph);
-	selectionState.tool = "ITERATOR";
-	initializeIterator(iterator);
-}
-
-var handleBFSIterator = function () {
-	var iterator = new BFSIterator(graph);
-	selectionState.tool = "ITERATOR";
-	initializeIterator(iterator);
-}
-
-var handleAStarIterator = function () {
-	var iterator = new AStarIterator(graph);
-	selectionState.tool = "ITERATOR";
-	selectionState.waitForGoalNode = true;
-	initializeIterator(iterator);
-}
-
-var handleLoad = function () {
-	var name = prompt("Изберете име на граф");
-
-	$.ajax({
-		method: "GET",
-		url: "http://localhost:8080/load",
-		dataType: "json",
-		data: {
-			name: name,
-		},
-		error: function (err) {
-			console.log(err);
-		}
-	}).done(function(data) {
-		manager.setGraph(graph, data);
-	});
-}
-
-var handleSave = function () {
-	var name = prompt("Изберете име на графа");
-
-	$.ajax({
-		method: "POST",
-		url: "http://localhost:8080/save",
-		contentType: "text/json",
-		data: JSON.stringify({
-			name: name,
-			graph: graph,
-			edgeCounter: manager.edgeCounter,
-			nodeCounter: manager.nodeCounter
-		})
-	});
-}
-
-var initializeIterator = function (iterator) {
-	if (selectionState.iterator) {
-		selectionState.iterator.reset();
-	}
-	selectionState.iterator = iterator;
-	selectionState.waitForStartingNode = true;
-}
-
-var startIterator = function (nodeId, secondId) {
-	if (selectionState.tool == "ITERATOR") {
-		if (selectionState.waitForGoalNode) {
-			return;
-		}
-		selectionState.iterator.start(nodeId, secondId);
-		selectionState.waitForStartingNode = false;
-	}
-}
+module.exports = {
+	attachUIListeners,
+	selectionState,
+	initializeCanvasContext,
+	elements
+};

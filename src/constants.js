@@ -1,34 +1,39 @@
-var VISITED_FILL_STYLE = "black";
-var VISITED_OUTLINE_STYLE = "red";
+'use strict';
 
-var TO_BE_VISITED_FILL_STYLE = "green";
-var TO_BE_VISITED_OUTLINE_STYLE = "blue";
+module.exports = {
+  VISITED_FILL_STYLE: "black",
+  VISITED_OUTLINE_STYLE: "red",
 
-var NORMAL_STROKE_STYLE = "black";
-var NORMAL_FILL_STYLE = "blue";
-var EDGE_STROKE_STYLE = "red";
-var EDGE_WEIGHT_FILL_STYLE = "blue";
+  TO_BE_VISITED_FILL_STYLE: "green",
+  TO_BE_VISITED_OUTLINE_STYLE: "blue",
 
-var ON_PATH_FILL_STYLE = "red"
-var ON_PATH_OUTLINE_STYLE = "black";
-var START_NODE_FILL_STYLE = "green";
-var START_NODE_OUTLINE_STYLE = "black";
-var GOAL_NODE_FILL_STYLE = "black";
-var GOAL_NODE_OUTLINE_STYLE = "yellow";
+  NORMAL_STROKE_STYLE: "black",
+  NORMAL_FILL_STYLE: "blue",
+  EDGE_STROKE_STYLE: "red",
+  EDGE_WEIGHT_FILL_STYLE: "blue",
+
+  ON_PATH_FILL_STYLE: "red",
+  ON_PATH_OUTLINE_STYLE: "black",
+  START_NODE_FILL_STYLE: "green",
+  START_NODE_OUTLINE_STYLE: "black",
+  GOAL_NODE_FILL_STYLE: "black",
+  GOAL_NODE_OUTLINE_STYLE: "yellow",
 
 
-var ITERATION_EDGE_COLORING = "blue";
+  ITERATION_EDGE_COLORING: "blue",
 
-var PROGRESS_BAR_BACKGROUND = "red";
-var PROGRESS_BAR_FILLING = "blue";
-var PROGRESS_BAR_OUTLINE = "black";
+  PROGRESS_BAR_BACKGROUND: "red",
+  PROGRESS_BAR_FILLING: "blue",
+  PROGRESS_BAR_OUTLINE: "black",
 
-var DISTANCE_FONT_COLOR = "orange";
-var LEVEL_FONT_COLOR = "orange";
+  DISTANCE_FONT_COLOR: "orange",
+  LEVEL_FONT_COLOR: "orange",
 
-var DEFAULT_FONT = "bold 20px Arial";
+  DEFAULT_FONT: "bold 20px Arial",
 
-var LINE_WIDTH = 5;
-var ARROW_LENGTH = 10;
+  LINE_WIDTH: 5,
+  ARROW_LENGTH: 10,
 
-var DEFAULT_NODE_RADIUS = 30;
+  DEFAULT_NODE_RADIUS: 30,
+  NODE_SPEED: 20
+};

@@ -1,3 +1,19 @@
+'use strict';
+
+const constants = require('./constants');
+const BFSIterator = require('./graph-iterators').BFSIterator;
+const DijkstraIterator = require('./graph-iterators').DijkstraIterator;
+const AStarIterator = require('./graph-iterators').AStarIterator;
+const ButtonGroup = require('./button-group');
+const GraphManager = require('./graph-manager').GraphManager;
+const GraphUtil = require('./graph-manager').GraphUtil;
+const ForceBasedController = require('./controller');
+const Renderer = require('./renderer');
+const InputManager = require('./input-manager');
+const InteractManager = require('./interact-manager');
+const UIState = require('./ui_state');
+let selectionState = UIState.selectionState;
+
 var context, canvas;
 var canvasBoundaries;
 
@@ -11,339 +27,309 @@ var leftPanel = new ButtonGroup();
 var graph = new GraphData();
 var input;
 var manager;
+let interactManager;
 var forceController;
 var renderer;
-var stateManager;
-
-var createNode = function () {
-	var nodeIndex = manager.addNode(graph);
-	EventBus.publish("add-node", nodeIndex,
-							 	 input.mouse.x,
-							 	 input.mouse.y,
-							 	 DEFAULT_NODE_RADIUS);
-}
-
-var createNotDirectedGraph = function() {
-	manager.createEmptyGraph(graph, false);
-}
-
-var createDirectedGraph = function() {
-	manager.createEmptyGraph(graph, true);
-}
-
-var generateNotDirectedGraph = function() {
-	manager.generateRandomGraph(graph, false, 15, 50, 0.6);
-	graph.nodeSpeed = 60;
-}
-
-var generateDirectedGraph = function() {
-	manager.generateRandomGraph(graph, true, 15, 50, 0.6);
-	graph.nodeSpeed = 60;
-}
-
-//TODO change functions
-document.getElementById("not_directed_graph").addEventListener("click", createNotDirectedGraph);
-document.getElementById("directed_graph").addEventListener("click", createDirectedGraph);
-document.getElementById("generate_not_directed_graph").addEventListener("click", generateNotDirectedGraph);
-document.getElementById("generate_directed_graph").addEventListener("click", generateDirectedGraph);
-// document.getElementById("save").addEventListener("click", func);
-
-
-var removeNode = function () {
-	var nodeToRemove = forceController.getNodeIdByCoordinates(input.mouse.x,
-															  input.mouse.y);
-
-	if(nodeToRemove != null) {
-		manager.removeNode(graph, nodeToRemove);
-		EventBus.publish("remove-node", nodeToRemove);
-	}
-}
-
-var addEdge = function () {
-	var secondNode = forceController.getNodeIdByCoordinates(input.mouse.x,
-																input.mouse.y);
-	if (secondNode != null) {
-		renderer.lerpLine(graph.transformations[firstNode].x,
-						  graph.transformations[firstNode].y,
-						  graph.transformations[secondNode].x,
-						  graph.transformations[secondNode].y,
-						  "blue", 300,
-		function (manager, graph, firstNode, secondNode) {
-			manager.addEdge(graph, firstNode, secondNode, 1);
-			EventBus.publish("add-edge");
-		}.bind(this, manager, graph, firstNode, secondNode));
-	}
-	renderer.stopPulseAnimation(firstNode);
-	firstNode = null;
-};
-
-var selectNode = function () {
-	var nodeId = forceController.getNodeIdByCoordinates(input.mouse.x,
-														input.mouse.y);
-
-	if (nodeId != null) {
-		EventBus.publish("node-selected", nodeId);
-	}
-};
-
-var showEdgeChangeDialog = function (edge) {
-	var newEdgeSize = prompt("Tell me edge size", edge.weight);
-	if (newEdgeSize) {
-		if (!graph.directed) {
-			var node = graph.nodes[edge.to];
-			var index = _.findIndex(node.edges, function (edgeId) {
-				return graph.edges[edgeId].to == edge.from;
-			});
-			var edgeId = node.edges[index];
-
-			graph.edges[edgeId].weight = parseInt(newEdgeSize);
-		}
-
-		edge.weight = parseInt(newEdgeSize);
-	}
-};
 
 var handleKeyPress = function (event) {
 	switch (event.keyCode) {
 		case 37:
-			if (selectionState.tool == "ITERATOR") {
-				selectionState.iterator.previous();
+			if (selectionState.tool == 'ITERATOR') {
+				const prevState = selectionState.iterator.previous();
+				handlePreviousState(graph, prevState);
+				graph.states = prevState;
 			}
 			break;
 
 		case 39:
-			if (selectionState.tool == "ITERATOR") {
-				selectionState.iterator.next();
+			if (selectionState.tool == 'ITERATOR') {
+				const nextState = selectionState.iterator.next();
+				handleNextState(graph, nextState);
+				graph.states = nextState;
 			}
 			break;
 	}
 };
 
-var detectMouseUp = function (event) {
-	// stateMachine.sendInput(event, "up");
-
-	if (movingNode) {
-		renderer.stopPulseAnimation(movingNode);
-		movingNode = null;
-		return;
-	}
-
-	if (event.target != canvas) {
+const detectMouseUp = (event) => {
+	if (event.target != UIState.elements.canvas) {
 		return;
 	}
 
 	switch (event.button) {
 		case 0:
-			if (firstNode == null && selectionState.tool == "HAND") {
-				var edge = forceController.getEdgeWeight(input.mouse.x,
-														 input.mouse.y);
-				if (edge != null) {
-					showEdgeChangeDialog(edge);
-				} else {
-					createNode();
-				}
-			} else if (selectionState.tool == "LINE" && firstNode != null) {
-				addEdge();
-			} else if (selectionState.tool == "ITERATOR" && firstNode != null) {
-				// if (selectionState.waitForStartingNode && selectionState.waitForGoalNode) {
-				// 	selectionState.waitForStartingNode = false;
-				// 	selectionState.startNode = firstNode;
-				// 	break;
-				// }
-				// if (!selectionState.waitForStartingNode && selectionState.waitForGoalNode
-				// 	&& selectionState.startNode) {
-				// 	selectionState.goalNode = firstNode;
-				// 	selectionState.waitForGoalNode = false;
-				// 	startIterator(selectionState.startNode, selectionState.goalNode);
-				// 	selectionState.startNode = null;
-				// 	selectionState.goalNode = null;
-				// 	break;
-				// }
-
-				// startIterator(firstNode);
-			}
+			interactManager.mouseUpFirst();
 			break;
 
 		case 2:
-			if (firstNode == null && selectionState.tool == "HAND") {
-				removeNode();
-			}
+			interactManager.mouseUpSecond();
 			break;
 	}
+
+	interactManager.resetState();
 };
 
-var detectMouseDown = function (event) {
-	// stateMachine.sendInput(event, "down");
-
+const detectMouseDown = (event) => {
+	interactManager.resetState();
 	if (event.button == 0) {
-		selectNode();
+		interactManager.selectNode();
 	}
 }
 
-var removeAnimations = function (event) {
-	if (event.button == 0 && firstNode != null && event.target != canvas) {
-		renderer.stopPulseAnimation(firstNode);
-		firstNode = null;
+const removeAnimations = (event) => {
+	if (event.button == 0 && event.target != UIState.elements.canvas) {
+		interactManager.resetState();
 	}
 }
+
+const createNotDirectedGraph = function () {
+	manager.createEmptyGraph(graph, false);
+}
+
+const createDirectedGraph = function () {
+	manager.createEmptyGraph(graph, true);
+}
+
+const generateNotDirectedGraph = function () {
+	manager.generateRandomGraph(graph, false, 15, 50, 0.6);
+	graph.nodeSpeed = 60;
+}
+
+const generateDirectedGraph = function () {
+	manager.generateRandomGraph(graph, true, 15, 50, 0.6);
+	graph.nodeSpeed = 60;
+}
+
+var handleDijkstraIterator = function () {
+	var iterator = new DijkstraIterator(graph);
+	setIterator(iterator);
+}
+
+var handleBFSIterator = function () {
+	var iterator = new BFSIterator(graph);
+	setIterator(iterator);
+}
+
+var handleAStarIterator = function () {
+	var iterator = new AStarIterator(graph);
+	selectionState.waitForGoalNode = true;
+	setIterator(iterator);
+}
+
+const initializeIterator = (iterator) => {
+	if (selectionState.iterator) {
+		selectionState.iterator.reset();
+		handleResetState(graph, graph.states);
+	}
+	selectionState.iterator = iterator;
+	selectionState.waitForStartingNode = true;
+};
+
+const setIterator = function (iterator) {
+	selectionState.tool = 'ITERATOR';
+	initializeIterator(iterator);
+}
+
+const handleLoad = () => {
+	var name = prompt('Изберете име на граф');
+
+	$.ajax({
+		method: 'GET',
+		url: 'http://localhost:8080/load',
+		dataType: 'json',
+		data: {
+			name: name,
+		},
+		error: function (err) {
+			console.log(err);
+		}
+	}).done(function (data) {
+		manager.setGraph(graph, data);
+	});
+};
+
+const handleSave = () => {
+	var name = prompt('Изберете име на графа');
+
+	$.ajax({
+		method: 'POST',
+		url: 'http://localhost:8080/save',
+		contentType: 'text/json',
+		data: JSON.stringify({
+			name: name,
+			graph: graph,
+			edgeCounter: manager.edgeCounter,
+			nodeCounter: manager.nodeCounter
+		})
+	});
+};
 
 window.onload = function () {
-	canvas = document.getElementById("area");
-	context = canvas.getContext("2d");
+	UIState.initializeCanvasContext();
+	UIState.attachUIListeners({
+		createNotDirectedGraph,
+		createDirectedGraph,
+		generateNotDirectedGraph,
+		generateDirectedGraph,
+		handleBFSIterator,
+		handleDijkstraIterator,
+		handleAStarIterator,
+		handleSave,
+		handleLoad
+	});
 
 	manager = new GraphManager();
-	manager.createEmptyGraph(graph, true);
-	forceController = new ForceBasedController(graph, 0, 50, canvas.height, canvas.width);
-	renderer = new Renderer(context, graph);
-	stateManager = new StateManager(graph);
-	input = new InputManager(canvas);
+	manager.createEmptyGraph(graph, false);
+	forceController = new ForceBasedController(graph, 0, 50, UIState.elements.canvas.height, UIState.elements.canvas.width);
+	renderer = new Renderer(UIState.elements.context, graph);
+	input = new InputManager(UIState.elements.canvas);
+
+	interactManager = new InteractManager(forceController, manager, graph, renderer, input);
 
 	input.detectMouseUp(removeAnimations);
 	input.detectMouseUp(detectMouseUp);
 	input.detectMouseDown(detectMouseDown);
 
-	EventBus.subscribe("state-reset", handleResetState);
-	EventBus.subscribe("next-state", handleNextState);
-	EventBus.subscribe("previous-state", handlePreviousState);
-
-	var handButton = leftPanel.addButton(document.getElementById("hand_icon"));
-	var lineButton = leftPanel.addButton(document.getElementById("line"));
+	var handButton = leftPanel.addButton(document.getElementById('hand_icon'));
+	var lineButton = leftPanel.addButton(document.getElementById('line'));
 
 	leftPanel.select(handButton);
 
 	leftPanel.addListener(handButton, function (selectionState) {
 		if (selectionState.iterator) {
 			selectionState.iterator.reset();
+			handleResetState(graph, graph.states);
 			selectionState.iterator = null;
 		}
-		selectionState.tool = "HAND";
+		selectionState.tool = 'HAND';
 	}.bind(undefined, selectionState));
 
 	leftPanel.addListener(lineButton, function (selectionState) {
 		if (selectionState.iterator) {
 			selectionState.iterator.reset();
+			handleResetState(graph, graph.states);
 			selectionState.iterator = null;
 		}
-		selectionState.tool = "LINE";
+		selectionState.tool = 'LINE';
 	}.bind(undefined, selectionState));
 
-	window.addEventListener("keyup", handleKeyPress);
-
-	attachUIListeners();
+	window.addEventListener('keyup', handleKeyPress);
 
 	update();
 };
 
-var handleResetState = function (state) {
+var handleResetState = function (graph, state) {
 	for (var id in state) {
-		var currentAnimationState = this.graph.animationStates[id];
+		var nodeAnimationState = graph.animationStates[id];
 
 		if (state[id].visited) {
-			currentAnimationState.fillColor = VISITED_FILL_STYLE;
-			currentAnimationState.color = VISITED_OUTLINE_STYLE;
-			currentAnimationState.fill = true;
+			nodeAnimationState.fillColor = constants.VISITED_FILL_STYLE;
+			nodeAnimationState.color = constants.VISITED_OUTLINE_STYLE;
+			nodeAnimationState.fill = true;
 		} else if (state[id].toBeVisited) {
-			currentAnimationState.color = TO_BE_VISITED_OUTLINE_STYLE;
-			currentAnimationState.fill = false;
+			nodeAnimationState.color = constants.TO_BE_VISITED_OUTLINE_STYLE;
+			nodeAnimationState.fill = false;
 		} else if (state[id].isOpen) {
-			currentAnimationState.color = TO_BE_VISITED_OUTLINE_STYLE;
-			currentAnimationState.fill = false;
+			nodeAnimationState.color = constants.TO_BE_VISITED_OUTLINE_STYLE;
+			nodeAnimationState.fill = false;
 		} else if (state[id].onPath) {
-			currentAnimationState.fillColor = ON_PATH_FILL_STYLE;
-			currentAnimationState.color = ON_PATH_OUTLINE_STYLE;
-			currentAnimationState.fill = true;
+			nodeAnimationState.fillColor = constants.ON_PATH_FILL_STYLE;
+			nodeAnimationState.color = constants.ON_PATH_OUTLINE_STYLE;
+			nodeAnimationState.fill = true;
 		} else if (state[id].isStart) {
-			currentAnimationState.fillColor = START_NODE_FILL_STYLE;
-			currentAnimationState.color = START_NODE_OUTLINE_STYLE;
-			currentAnimationState.fill = true;
+			nodeAnimationState.fillColor = constants.START_NODE_FILL_STYLE;
+			nodeAnimationState.color = constants.START_NODE_OUTLINE_STYLE;
+			nodeAnimationState.fill = true;
 		} else if (state[id].isGoal) {
-			currentAnimationState.fillColor = GOAL_NODE_FILL_STYLE;
-			currentAnimationState.color = GOAL_NODE_OUTLINE_STYLE;
-			currentAnimationState.fill = true;
+			nodeAnimationState.fillColor = constants.GOAL_NODE_FILL_STYLE;
+			nodeAnimationState.color = constants.GOAL_NODE_OUTLINE_STYLE;
+			nodeAnimationState.fill = true;
 		} else {
-			currentAnimationState.color = NORMAL_STROKE_STYLE;
-			currentAnimationState.fill = false;
-			currentAnimationState.fillColor = NORMAL_FILL_STYLE;
+			nodeAnimationState.color = constants.NORMAL_STROKE_STYLE;
+			nodeAnimationState.fill = false;
+			nodeAnimationState.fillColor = constants.NORMAL_FILL_STYLE;
 		}
 	}
 }
 
-var handlePreviousState = function (previousState, currentState) {
-	for (var id in currentState) {
-		var currentAnimationState = this.graph.animationStates[id];
+var handlePreviousState = function (graph, prevState) {
+	for (var nodeId in prevState) {
+		var nodeAnimationState = graph.animationStates[nodeId];
 
-		if (currentState[id].visited) {
-			currentAnimationState.fillColor = VISITED_FILL_STYLE;
-			currentAnimationState.color = VISITED_OUTLINE_STYLE;
-			currentAnimationState.fill = true;
-		} else if (currentState[id].toBeVisited) {
-			currentAnimationState.color = TO_BE_VISITED_OUTLINE_STYLE;
-			currentAnimationState.fill = false;
-		} else if (currentState[id].isOpen) {
-			currentAnimationState.color = TO_BE_VISITED_OUTLINE_STYLE;
-			currentAnimationState.fill = false;
-		} else if (currentState[id].onPath) {
-			currentAnimationState.fillColor = ON_PATH_FILL_STYLE;
-			currentAnimationState.color = ON_PATH_OUTLINE_STYLE;
-			currentAnimationState.fill = true;
-		} else if (currentState[id].isStart) {
-			currentAnimationState.fillColor = START_NODE_FILL_STYLE;
-			currentAnimationState.color = START_NODE_OUTLINE_STYLE;
-			currentAnimationState.fill = true;
-		} else if (currentState[id].isGoal) {
-			currentAnimationState.fillColor = GOAL_NODE_FILL_STYLE;
-			currentAnimationState.color = GOAL_NODE_OUTLINE_STYLE;
-			currentAnimationState.fill = true;
+		if (prevState[nodeId].visited) {
+			nodeAnimationState.fillColor = constants.VISITED_FILL_STYLE;
+			nodeAnimationState.color = constants.VISITED_OUTLINE_STYLE;
+			nodeAnimationState.fill = true;
+		} else if (prevState[nodeId].toBeVisited) {
+			nodeAnimationState.color = constants.TO_BE_VISITED_OUTLINE_STYLE;
+			nodeAnimationState.fill = false;
+		} else if (prevState[nodeId].isOpen) {
+			nodeAnimationState.color = constants.TO_BE_VISITED_OUTLINE_STYLE;
+			nodeAnimationState.fill = false;
+		} else if (prevState[nodeId].onPath) {
+			nodeAnimationState.fillColor = constants.ON_PATH_FILL_STYLE;
+			nodeAnimationState.color = constants.ON_PATH_OUTLINE_STYLE;
+			nodeAnimationState.fill = true;
+		} else if (prevState[nodeId].isStart) {
+			nodeAnimationState.fillColor = constants.START_NODE_FILL_STYLE;
+			nodeAnimationState.color = constants.START_NODE_OUTLINE_STYLE;
+			nodeAnimationState.fill = true;
+		} else if (prevState[nodeId].isGoal) {
+			nodeAnimationState.fillColor = constants.GOAL_NODE_FILL_STYLE;
+			nodeAnimationState.color = constants.GOAL_NODE_OUTLINE_STYLE;
+			nodeAnimationState.fill = true;
 		} else {
-			currentAnimationState.color = NORMAL_STROKE_STYLE;
-			currentAnimationState.fill = false;
-			currentAnimationState.fillColor = NORMAL_FILL_STYLE;
+			nodeAnimationState.color = constants.NORMAL_STROKE_STYLE;
+			nodeAnimationState.fill = false;
+			nodeAnimationState.fillColor = constants.NORMAL_FILL_STYLE;
 		}
 	}
 };
 
-var handleNextState = function (previousState, currentState) {
-	for (var id in currentState) {
-		var currentAnimationState = this.graph.animationStates[id];
+var handleNextState = function (graph, nextState) {
+	let currentState = graph.states;
 
-		if (currentState[id].visited) {
-			currentAnimationState.fillColor = VISITED_FILL_STYLE;
-			currentAnimationState.color = VISITED_OUTLINE_STYLE;
-			currentAnimationState.fill = true;
-		} else if (currentState[id].toBeVisited) {
-			currentAnimationState.color = TO_BE_VISITED_OUTLINE_STYLE;
-			currentAnimationState.fill = false;
-		} else if (currentState[id].isOpen) {
-			currentAnimationState.color = TO_BE_VISITED_OUTLINE_STYLE;
-			currentAnimationState.fill = false;
-		} else if (currentState[id].onPath) {
-			currentAnimationState.fillColor = ON_PATH_FILL_STYLE;
-			currentAnimationState.color = ON_PATH_OUTLINE_STYLE;
-			currentAnimationState.fill = true;
-		} else if (currentState[id].isStart) {
-			currentAnimationState.fillColor = START_NODE_FILL_STYLE;
-			currentAnimationState.color = START_NODE_OUTLINE_STYLE;
-			currentAnimationState.fill = true;
-		} else if (currentState[id].isGoal) {
-			currentAnimationState.fillColor = GOAL_NODE_FILL_STYLE;
-			currentAnimationState.color = GOAL_NODE_OUTLINE_STYLE;
-			currentAnimationState.fill = true;
+	for (var nodeId in nextState) {
+		var nodeAnimationState = graph.animationStates[nodeId];
+
+		if (nextState[nodeId].visited) {
+			nodeAnimationState.fillColor = constants.VISITED_FILL_STYLE;
+			nodeAnimationState.color = constants.VISITED_OUTLINE_STYLE;
+			nodeAnimationState.fill = true;
+		} else if (nextState[nodeId].toBeVisited) {
+			nodeAnimationState.color = constants.TO_BE_VISITED_OUTLINE_STYLE;
+			nodeAnimationState.fill = false;
+		} else if (nextState[nodeId].isOpen) {
+			nodeAnimationState.color = constants.TO_BE_VISITED_OUTLINE_STYLE;
+			nodeAnimationState.fill = false;
+		} else if (nextState[nodeId].onPath) {
+			nodeAnimationState.fillColor = constants.ON_PATH_FILL_STYLE;
+			nodeAnimationState.color = constants.ON_PATH_OUTLINE_STYLE;
+			nodeAnimationState.fill = true;
+		} else if (nextState[nodeId].isStart) {
+			nodeAnimationState.fillColor = constants.START_NODE_FILL_STYLE;
+			nodeAnimationState.color = constants.START_NODE_OUTLINE_STYLE;
+			nodeAnimationState.fill = true;
+		} else if (nextState[nodeId].isGoal) {
+			nodeAnimationState.fillColor = constants.GOAL_NODE_FILL_STYLE;
+			nodeAnimationState.color = constants.GOAL_NODE_OUTLINE_STYLE;
+			nodeAnimationState.fill = true;
 		} else {
-			currentAnimationState.color = NORMAL_STROKE_STYLE;
-			currentAnimationState.fill = false;
-			currentAnimationState.fillColor = NORMAL_FILL_STYLE;
+			nodeAnimationState.color = constants.NORMAL_STROKE_STYLE;
+			nodeAnimationState.fill = false;
+			nodeAnimationState.fillColor = constants.NORMAL_FILL_STYLE;
 		}
 
-		if (previousState[id].visited != currentState[id].visited &&
-			currentState[id].visited && currentState[id].parentId != undefined) {
-			var parentTransformation = this.graph.transformations[currentState[id].parentId];
-			var currentTransformation = this.graph.transformations[id];
+		if (currentState[nodeId].visited != nextState[nodeId].visited &&
+			nextState[nodeId].visited && nextState[nodeId].parentId != undefined) {
+			var parentTransformation = graph.transformations[nextState[nodeId].parentId];
+			var currentTransformation = graph.transformations[nodeId];
 
 			renderer.lerpLine(parentTransformation.x,
 							  parentTransformation.y,
 							  currentTransformation.x,
 							  currentTransformation.y,
-							  ITERATION_EDGE_COLORING, 1000);
+							  constants.ITERATION_EDGE_COLORING, 1000);
 		}
 	}
 };
@@ -352,33 +338,19 @@ var update = function () {
 	renderer.clear();
 	renderer.render();
 
-	if (firstNode && selectionState.tool == "LINE") {
-		renderer.renderLine(
-			forceController.getCircleCoordinatesOnNode(input.mouse.x,
-													   input.mouse.y,
-													   firstNode),
-			{
-				x: input.mouse.x,
-				y: input.mouse.y
-		}, "red");
-	}
+	interactManager.update();
 
-	if (movingNode && selectionState.tool == "HAND") {
-		graph.transformations[movingNode].x = input.mouse.x;
-		graph.transformations[movingNode].y = input.mouse.y;
-	}
 
-	if (selectionState.tool == "ITERATOR") {
+	if (selectionState.tool == 'ITERATOR') {
 		if (selectionState.waitForStartingNode || selectionState.waitForGoalNode) {
-			renderer.renderText(input.mouse.x, input.mouse.y, "Изберете връх", "orange");
+			renderer.renderText(input.mouse.x, input.mouse.y, 'Изберете връх', 'orange');
 		}
 		if (selectionState.iterator.started) {
-			renderer.renderText(350, 20, "Използвайте стрелките, за да навигирате алгоритъма", "blue");
+			renderer.renderText(350, 20, 'Използвайте стрелките, за да навигирате алгоритъма', 'blue');
 			renderer.renderProgressBar(350, 50, 300, 30, selectionState.iterator.currentState + 1,
 										  selectionState.iterator.states.length);
 		}
 	}
-
 
 	forceController.update();
 

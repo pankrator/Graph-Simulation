@@ -1,12 +1,4 @@
-var canvas = document.createElement("canvas");
-var ctx = canvas.getContext("2d");
-var SEEN_NODE_COLOR = "green";
-var FINISHED_NODE_COLOR = "black";
-var ROOT_NODE_COLOR = "blue";
-// var NEIGHBOUR_NODE_COLOR = "blue";
-// var SEEN_NODE_COLOR = ctx.createRadialGradient(20, 30, 30, 60, 60, 20);
-// SEEN_NODE_COLOR.addColorStop(0, "green");
-// SEEN_NODE_COLOR.addColorStop(1, "blue");
+'use strict';
 
 var DFSIterator = function (graph) {
 	this.graph = graph;
@@ -19,51 +11,43 @@ var DFSIterator = function (graph) {
 };
 
 DFSIterator.prototype.next = function () {
-	for (var i = 0; i < this.neighbours.length; i++) {
-		if (!this.used[this.neighbours[i]]) {
-			this.recursive(this.neighbours[i], this.parent)
-			return;
-		}
-	}
-	if (this.parent == null) {
+	if (!this.started) {
 		return;
 	}
-	if (!this.graph.list[this.parent].rootNode) {
-		this.graph.list[this.parent].color = FINISHED_NODE_COLOR;
-		this.graph.list[this.parent].fill - true;
+
+	this.currentState++;
+	if (this.currentState >= this.states.length) {
+		this.currentState = this.states.length - 1;
 	}
 
-	this.parent = this.graph.list[this.parent].parent;
-	if (this.parent == null) {
-		return;
-	}
-	this.neighbours = this.graph.list[this.parent].neighbours;
-
-	this.next();
+	const nextState = this.states[this.currentState];
+	return nextState;
 };
 
-DFSIterator.prototype.recursive = function (v, parent) {
-	this.used[v] = (parent !== undefined && parent != null) ? this.used[parent] + 1 : 1;
-	var node = this.graph.list[v];
-	node.color = SEEN_NODE_COLOR;
-	node.fill = true;
-	// node.radius = 40;
-	node.level = this.used[v] + 1;
-	node.parent = parent;
-	var neighbours = node.neighbours;
-
-	if (neighbours.length > 1)  {
-		this.parent = v;
-		this.neighbours = neighbours;
-	} else {
-		node.color = FINISHED_NODE_COLOR;
-		node.fill = true;
+DFSIterator.prototype.previous = function () {
+	if (!this.started) {
+		return;
 	}
+
+	this.currentState--;
+
+	if(this.currentState < 0) {
+		this.currentState = 0;
+	}
+
+	const prevState = this.states[this.currentState];
+	return prevState;
 };
 
 DFSIterator.prototype.start = function (startVertex) {
 	if (this.started) {
 		return;
+	}
+
+	let initialState = {};
+	for (let node in this.graph.nodes) {
+		this.discovered[node] = false;
+		initialState[node] = { visited: false, toBeVisited: false };
 	}
 
 	this.started = true;
@@ -83,14 +67,13 @@ DFSIterator.prototype.reset = function () {
 	this.used = [];
 	this.started = false;
 
-	var list = this.graph.list;
-	for (var i = 0; i < list.length; i++) {
-		list[i].rootNode = false;
-		list[i].color = null;
-		list[i].fill = null;
-		list[i].level = null;
-		list[i].radius = 30; // Magic
-		list[i].parent = null;
+	var states = this.graph.states;
+	for (var nodeId in states) {
+		states[nodeId].active = false;
+		states[nodeId].visited = false;
+		states[nodeId].toBeVisited = false;
+		states[nodeId].parentId = null;
+		states[nodeId].distance = null;
 	}
 };
 
@@ -114,8 +97,8 @@ DijkstraIterator.prototype.next = function () {
 		this.currentState = this.states.length - 1;
 	}
 
-	EventBus.publish("next-state", this.graph.states, this.states[this.currentState]);
-	this.graph.states = this.states[this.currentState];
+	const nextState = this.states[this.currentState];
+	return nextState;
 };
 
 DijkstraIterator.prototype.previous = function () {
@@ -129,9 +112,8 @@ DijkstraIterator.prototype.previous = function () {
 		this.currentState = 0;
 	}
 
-	EventBus.publish("previous-state", this.graph.states, this.states[this.currentState]);
-
-	this.graph.states = this.states[this.currentState];
+	const prevState = this.states[this.currentState];
+	return prevState;
 };
 
 DijkstraIterator.prototype.start = function (startId) {
@@ -208,8 +190,6 @@ DijkstraIterator.prototype.reset = function () {
 		states[nodeId].parentId = null;
 		states[nodeId].distance = null;
 	}
-
-	EventBus.publish("state-reset", states);
 };
 
 var BFSIterator = function (graph) {
@@ -231,8 +211,8 @@ BFSIterator.prototype.next = function () {
 		this.currentState = this.states.length - 1;
 	}
 
-	EventBus.publish("next-state", this.graph.states, this.states[this.currentState]);
-	this.graph.states = this.states[this.currentState];
+	const nextState = this.states[this.currentState];
+	return nextState;
 };
 
 BFSIterator.prototype.previous = function () {
@@ -246,9 +226,8 @@ BFSIterator.prototype.previous = function () {
 		this.currentState = 0;
 	}
 
-	EventBus.publish("previous-state", this.graph.states, this.states[this.currentState]);
-
-	this.graph.states = this.states[this.currentState];
+	const prevState = this.states[this.currentState];
+	return prevState;
 };
 
 BFSIterator.prototype.start = function (startId) {
@@ -303,8 +282,6 @@ BFSIterator.prototype.reset = function () {
 		states[nodeId].toBeVisited = false;
 		states[nodeId].level = null;
 	}
-
-	EventBus.publish("state-reset", states);
 };
 
 
@@ -408,8 +385,8 @@ AStarIterator.prototype.next = function () {
 		this.currentState = this.states.length - 1;
 	}
 
-	EventBus.publish("next-state", this.graph.states, this.states[this.currentState]);
-	this.graph.states = this.states[this.currentState];
+	const nextState = this.states[this.currentState];
+	return nextState;
 };
 
 AStarIterator.prototype.previous = function () {
@@ -423,9 +400,8 @@ AStarIterator.prototype.previous = function () {
 		this.currentState = 0;
 	}
 
-	EventBus.publish("previous-state", this.graph.states, this.states[this.currentState]);
-
-	this.graph.states = this.states[this.currentState];
+	const prevState = this.states[this.currentState];
+	return prevState;
 };
 
 AStarIterator.prototype.heuristic = function (first, second) {
@@ -463,6 +439,10 @@ AStarIterator.prototype.reset = function () {
 		states[nodeId].parentId = null;
 		states[nodeId].distance = null;
 	}
-
-	EventBus.publish("state-reset", states);
 }
+
+module.exports = {
+	BFSIterator,
+	AStarIterator,
+	DijkstraIterator
+};

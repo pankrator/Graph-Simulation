@@ -1,4 +1,6 @@
-var NODE_SPEED = 20;
+'use strict';
+
+let NODE_SPEED = 20;
 
 var ForceBasedController = function (graph, left, top, height, width) {
 	this.graph = graph;
@@ -8,33 +10,9 @@ var ForceBasedController = function (graph, left, top, height, width) {
 	this.top = top;
 	this.height = height;
 	this.width = width;
-
-	EventBus.subscribe("add-node", this.addNode.bind(this));
-	EventBus.subscribe("add-edge", this.addEdge.bind(this));
-	EventBus.subscribe("remove-node", this.removeNode.bind(this));
 };
 
-ForceBasedController.prototype.removeNode = function(nodeId) {
-	delete this.graph.transformations[nodeId];
-	this.graph.nodeSpeed = NODE_SPEED;
-};
-
-ForceBasedController.prototype.addEdge = function() {
-	this.graph.nodeSpeed = NODE_SPEED;
-};
-
-ForceBasedController.prototype.addNode = function (id, x, y, radius) {
-	this.graph.transformations[id] = {
-		id: id,
-		x: x,
-		y: y,
-		radius: radius
-	};
-
-	this.graph.nodeSpeed = NODE_SPEED;
-};
-
-ForceBasedController.prototype.getEdgeWeight = function (x, y) {
+ForceBasedController.prototype.getEdge = function (x, y) {
 	for (var edgeId in this.graph.edges) {
 		var edge = this.graph.edges[edgeId];
 		var node1 = this.graph.transformations[edge.from];
@@ -174,7 +152,7 @@ ForceBasedController.prototype.repelFromDimensions = function(nodeId) {
 		nodeTransformation.x += this.graph.nodeSpeed / (transformationLeft * scaleLen || 1);
 	} else if (transformationRight < minDistance) {
 		nodeTransformation.x -= this.graph.nodeSpeed / (transformationRight * scaleLen || 1);
-	} 
+	}
 
 	if (transformationtop < minDistance + this.top) {
 		nodeTransformation.y += this.graph.nodeSpeed / (transformationtop * scaleLen || 1);
@@ -194,12 +172,14 @@ ForceBasedController.prototype.update = function () {
 		this.action(nodeId);
 	}
 
-	if (movingNode) {
-		this.graph.nodeSpeed = NODE_SPEED;
-	}
+	// if (movingNode) {
+	// 	this.graph.nodeSpeed = NODE_SPEED;
+	// }
 
 	this.graph.nodeSpeed *= 0.99;
 	if(this.graph.nodeSpeed < 0.5) {
 		this.graph.nodeSpeed = 0;
 	}
 };
+
+module.exports = ForceBasedController;

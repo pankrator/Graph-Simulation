@@ -1,3 +1,5 @@
+'use strict';
+
 var ButtonGroup = function() {
 	this.buttons = [];
 }
@@ -21,3 +23,5 @@ ButtonGroup.prototype.addButton = function(buttonElement) {
 ButtonGroup.prototype.addListener = function (index, listener) {
 	this.buttons[index].addEventListener("click", listener);
 }
+
+module.exports = ButtonGroup;

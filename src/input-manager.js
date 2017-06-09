@@ -1,3 +1,5 @@
+'use strict';
+
 function MouseData() {
     this.scroll = 0;
     this.left = false;
@@ -79,3 +81,5 @@ InputManager.prototype.mouseDown = function (event) {
 InputManager.prototype.contextMenuListener = function(event) {
 	event.preventDefault();
 }
+
+module.exports = InputManager;
