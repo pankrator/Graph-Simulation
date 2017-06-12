@@ -147,16 +147,14 @@ GraphManager.prototype.createEdge = function (first, second, weight) {
 GraphManager.prototype.removeNode = function(graph, nodeId) {
   var edgesToRemove = [];
   for (var edge in graph.edges) {
-  if (graph.edges[edge].from == nodeId ||
-    graph.edges[edge].to == nodeId) {
+    if (graph.edges[edge].from == nodeId) {
+      let node = graph.nodes[nodeId];
+      _.remove(node.edges, edgeIndex => parseInt(edgeIndex) === parseInt(edge));
+      edgesToRemove.push(edge);
 
-      var nodeFrom = graph.nodes[graph.edges[edge].from];
-      var edgeIndex = nodeFrom.edges.indexOf(edge);
-
-      if(edgeIndex > -1) {
-        nodeFrom.edges.splice(edgeIndex, 1);
-        edgesToRemove.push(edge);
-      }
+      let neighbourNode = graph.nodes[graph.edges[edge].to];
+      let removed = _.remove(neighbourNode.edges, edgeIndex => graph.edges[edgeIndex].to === nodeId);
+      edgesToRemove = edgesToRemove.concat(removed);
     }
   }
 
